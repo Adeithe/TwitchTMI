@@ -23,7 +23,7 @@ public class IRCTest {
 			}
 			
 			public void onChannelJoin(ChannelJoinEvent event) throws Exception {
-				TMI.sendMessage(channel, "/me test");
+				//TMI.sendMessage(channel, "/me test");
 			}
 			
 			public void onAction(MessageEvent event) {
