@@ -2,7 +2,6 @@ package tv.twitch.tmi;
 
 import lombok.Getter;
 import lombok.Setter;
-import tv.twitch.Utils;
 import tv.twitch.tmi.events.obj.*;
 import tv.twitch.tmi.events.EventListener;
 import tv.twitch.tmi.exception.ChannelJoinFailureException;

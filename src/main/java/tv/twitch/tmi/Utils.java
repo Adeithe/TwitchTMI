@@ -1,4 +1,4 @@
-package tv.twitch;
+package tv.twitch.tmi;
 
 public class Utils {
 	public static boolean isNull(Object obj) {
@@ -10,7 +10,7 @@ public class Utils {
 	}
 	
 	public static String username(String str) {
-		String username = (isNull(str))?"":str;
+		String username = (isNull(str))? "" : str;
 		return (username.charAt(0) == '#')? username.substring(1).toLowerCase() : username.toLowerCase();
 	}
 }
