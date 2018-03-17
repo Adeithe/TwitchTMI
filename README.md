@@ -2,8 +2,6 @@
 
 Implementation of TwitchIRC in Java 8
 
-**NOTE:** The ReadTheDocs documentation is currently empty. I'll be adding this in the near future.
-
 ## Getting Started
 All examples of how to get started with TwitchTMI are available at [/src/test/java](https://github.com/Adeithe/TwitchTMI/tree/master/src/test/java)
 
@@ -31,7 +29,7 @@ Add the following to your `pom.xml` (Without ellipses)
 </dependencies>
 ...
 ```
-#### With Gradle
+##### With Gradle
 Add the following to your `build.gradle` (Without ellipses)
 ```groovy
 allprojects {
