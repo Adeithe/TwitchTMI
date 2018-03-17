@@ -1,9 +1,12 @@
-# TwitchTMI [![](https://jitpack.io/v/Adeithe/TwitchTMI.svg?style=flat-square)](https://jitpack.io/#Adeithe/TwitchTMI) [![Documentation Status](https://readthedocs.org/projects/twitchtmi/badge/?version=latest)](http://twitchtmi.readthedocs.io/en/latest/?badge=latest)
+# TwitchTMI [![](https://jitpack.io/v/Adeithe/TwitchTMI.svg?style=flat-square)](https://jitpack.io/#Adeithe/TwitchTMI)
 
 Implementation of TwitchIRC in Java 8
 
 ## Getting Started
 All examples of how to get started with TwitchTMI are available at [/src/test/java](https://github.com/Adeithe/TwitchTMI/tree/master/src/test/java)
+
+## Documentation
+Documentation for TwitchTMI is available at [adeithe.github.io/TwitchTMI](http://adeithe.github.io/TwitchTMI)
 
 ## Using TwitchTMI in your project
 `@VERSION@` = The release version of TwitchTMI to use or `-SNAPSHOT` to use the dev version
