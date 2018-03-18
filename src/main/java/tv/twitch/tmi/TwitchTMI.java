@@ -264,12 +264,12 @@ public class TwitchTMI {
 						case "MODE":
 							switch(msg.toUpperCase()) {
 								case "+O":
-									if(!this.TMI.getChannel(channel).getMods().contains(rawData.params.get(2).toLowerCase()))
+									if(!this.TMI.getChannel(channel).isMod(rawData.params.get(2)))
 										this.TMI.getChannel(channel).getMods().add(rawData.params.get(2).toLowerCase());
 								break;
 								
 								case "-O":
-									if(this.TMI.getChannel(channel).getMods().contains(rawData.params.get(2).toLowerCase()))
+									if(this.TMI.getChannel(channel).isMod(rawData.params.get(2)))
 										this.TMI.getChannel(channel).getMods().remove(rawData.params.get(2).toLowerCase());
 								break;
 							}
@@ -287,14 +287,14 @@ public class TwitchTMI {
 						
 						case "JOIN":
 							if(username.equalsIgnoreCase(this.TMI.getUsername()))
-								if(!this.TMI.getConnectedChannels().containsKey(channel))
+								if(!this.TMI.getChannel(channel).isConnected())
 									this.TMI.getConnectedChannels().put(channel, new Channel(this.TMI, channel, true));
 							this.TMI.getEventListener().onChannelJoin(new ChannelJoinEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, username.equalsIgnoreCase(this.TMI.getUsername())));
 						break;
 						
 						case "PART":
 							if(username.equalsIgnoreCase(this.TMI.getUsername()))
-								if(this.TMI.getConnectedChannels().containsKey(channel))
+								if(this.TMI.getChannel(channel).isConnected())
 									this.TMI.getConnectedChannels().remove(channel);
 							this.TMI.getEventListener().onChannelLeave(new ChannelLeaveEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, username.equalsIgnoreCase(this.TMI.getUsername())));
 						break;
