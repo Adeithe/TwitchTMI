@@ -11,15 +11,15 @@ public class ChannelJoinEvent implements IEvent {
 	private RawData rawData;
 	
 	@Getter private Channel channel;
-	@Getter private String user;
+	@Getter private String username;
 	@Getter private boolean self;
 	
-	public ChannelJoinEvent(TwitchTMI TMI, RawData rawData, String channel, String user, boolean self) {
+	public ChannelJoinEvent(TwitchTMI TMI, RawData rawData, Channel channel, String username, boolean self) {
 		this.TMI = TMI;
 		this.rawData = rawData;
 		
-		this.channel = new Channel(TMI, channel);
-		this.user = user;
+		this.channel = channel;
+		this.username = username;
 		this.self = self;
 	}
 }

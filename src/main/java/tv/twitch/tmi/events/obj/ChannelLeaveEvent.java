@@ -14,11 +14,11 @@ public class ChannelLeaveEvent implements IEvent {
 	@Getter private String user;
 	@Getter private boolean self;
 	
-	public ChannelLeaveEvent(TwitchTMI TMI, RawData rawData, String channel, String user, boolean self) {
+	public ChannelLeaveEvent(TwitchTMI TMI, RawData rawData, Channel channel, String user, boolean self) {
 		this.TMI = TMI;
 		this.rawData = rawData;
 		
-		this.channel = new Channel(TMI, channel);
+		this.channel = channel;
 		this.user = user;
 		this.self = self;
 	}

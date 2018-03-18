@@ -15,11 +15,11 @@ public class HostEvent implements IEvent {
 	@Getter private int viewers;
 	@Getter private boolean autoHost;
 	
-	public HostEvent(TwitchTMI TMI, RawData rawData, String channel, String hoster, int viewers, boolean autoHost) {
+	public HostEvent(TwitchTMI TMI, RawData rawData, Channel channel, String hoster, int viewers, boolean autoHost) {
 		this.TMI = TMI;
 		this.rawData = rawData;
 		
-		this.channel = new Channel(TMI, channel);
+		this.channel = channel;
 		this.hoster = hoster;
 		this.viewers = viewers;
 		this.autoHost = autoHost;

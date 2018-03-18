@@ -14,11 +14,11 @@ public class ChannelModeEvent implements IEvent {
 	@Getter private boolean enabled;
 	@Getter private Mode mode;
 	
-	public ChannelModeEvent(TwitchTMI TMI, RawData rawData, String channel, boolean enabled, Mode mode) {
+	public ChannelModeEvent(TwitchTMI TMI, RawData rawData, Channel channel, boolean enabled, Mode mode) {
 		this.TMI = TMI;
 		this.rawData = rawData;
 		
-		this.channel = new Channel(TMI, channel);
+		this.channel = channel;
 		this.enabled = enabled;
 		this.mode = mode;
 	}

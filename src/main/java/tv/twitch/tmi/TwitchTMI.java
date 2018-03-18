@@ -7,6 +7,7 @@ import tv.twitch.tmi.events.EventListener;
 import tv.twitch.tmi.exception.ChannelJoinFailureException;
 import tv.twitch.tmi.exception.ChannelLeaveFailureException;
 import tv.twitch.tmi.exception.MessageSendFailureException;
+import tv.twitch.tmi.obj.Channel;
 import tv.twitch.tmi.obj.Message;
 import tv.twitch.tmi.obj.RawData;
 
@@ -18,11 +19,11 @@ import java.util.List;
 
 public class TwitchTMI {
 	private ChatService Chat;
-	private List<String> channels;
 	
 	@Getter private String IP;
 	@Getter private int port;
 	
+	@Getter private HashMap<String, Channel> connectedChannels;
 	@Getter @Setter private EventListener eventListener;
 	@Getter @Setter private String username;
 	@Getter @Setter private String oAuth;
@@ -31,9 +32,10 @@ public class TwitchTMI {
 	public TwitchTMI() {
 		this.IP = "irc.chat.twitch.tv";
 		this.port = 6667;
-		this.verbose = false;
-		this.channels = new ArrayList<String>();
+		
+		this.connectedChannels = new HashMap<String, Channel>();
 		this.eventListener = new EventListener() {};
+		this.verbose = false;
 	}
 	
 	/**
@@ -45,45 +47,18 @@ public class TwitchTMI {
 	}
 	
 	/**
-	 * Joins the provided Twitch Chat and prepares the client to send messages
-	 * This <b>MUST</b> be done after ConnectEvent has been fired
+	 * Returns a channel object
 	 *
 	 * @param channel
-	 * @throws ChannelJoinFailureException
+	 * @return
 	 */
-	public void join(String channel) throws ChannelJoinFailureException {
-		try {
-			if(!channel.startsWith("#"))
-				channel = "#" + channel;
-			if(!this.isConnected() || this.channels.contains(channels))
-				throw new IOException("Unable to join channel!");
-			
-			this.Chat.sendRawData("JOIN " + channel);
-			this.channels.add(channel);
-		} catch(IOException e) {
-			throw new ChannelJoinFailureException("Something went wrong while joining the channel!");
-		}
-	}
-	
-	/**
-	 * Sends the provided message to the channel
-	 * Client <b>MUST</b> join the channel before sending messages
-	 *
-	 * @param channel
-	 * @param message
-	 * @throws MessageSendFailureException
-	 */
-	public void sendMessage(String channel, String message) throws MessageSendFailureException {
-		try {
-			if(!channel.startsWith("#"))
-				channel = "#" + channel;
-			if(!this.isConnected() || !this.channels.contains(channel))
-				throw new IOException("Unable to send message!");
-			
-			this.Chat.sendRawData("PRIVMSG "+ channel +" :"+ message);
-		} catch(IOException e) {
-			throw new MessageSendFailureException("Something went wrong while sending your message!");
-		}
+	public Channel getChannel(String channel) {
+		channel = channel.toLowerCase();
+		if(channel.startsWith("#"))
+			channel = channel.replaceFirst("#", "");
+		if(this.getConnectedChannels().containsKey(channel))
+			return this.getConnectedChannels().get(channel);
+		return new Channel(this, channel, false);
 	}
 	
 	/**
@@ -96,27 +71,11 @@ public class TwitchTMI {
 	public void sendWhisper(String recipient, String message) throws MessageSendFailureException {
 		try {
 			if(!this.isConnected())
-				throw new IOException("Unable to send message!");
-			
+				throw new IOException("Unable to send whisper!");
 			this.Chat.sendRawData("PRIVMSG #jtv :/w "+ recipient.toLowerCase() +" "+ message);
 		} catch(IOException e) {
-			throw new MessageSendFailureException("Something went wrong while sending your message!");
+			throw new MessageSendFailureException("Something went wrong while sending your whisper!");
 		}
-	}
-	
-	/**
-	 * Returns true if the given user is a moderator and is currently in chat
-	 * <b>NOTE:</b> This is not 100% reliable and may return misinformation!
-	 *
-	 * @param channel
-	 * @param username
-	 * @return
-	 */
-	public boolean isMod(String channel, String username) {
-		if(this.Chat.mods.containsKey(channel.toLowerCase()))
-			if(this.Chat.mods.get(channel).contains(username.toLowerCase()))
-				return true;
-		return false;
 	}
 	
 	/**
@@ -126,26 +85,6 @@ public class TwitchTMI {
 	 * @throws Exception
 	 */
 	public void sendRawData(String... data) throws Exception { this.Chat.sendRawData(data); }
-	
-	/**
-	 * Leaves the provided Twitch Chat removing the ability to chat there until rejoined
-	 *
-	 * @param channel
-	 * @throws ChannelLeaveFailureException
-	 */
-	public void leave(String channel) throws ChannelLeaveFailureException {
-		try {
-			if(!channel.startsWith("#"))
-				channel = "#" + channel;
-			if(!this.isConnected() || !this.channels.contains(channels))
-				throw new IOException("Unable to leave channel!");
-			
-			this.Chat.sendRawData("PART " + channel);
-			this.channels.remove(channel);
-		} catch(IOException e) {
-			throw new ChannelLeaveFailureException("Something went wrong while leaving the channel!");
-		}
-	}
 	
 	/**
 	 * Returns true if logged in to the Twitch IRC Service
@@ -170,14 +109,10 @@ public class TwitchTMI {
 		private BufferedWriter Writer;
 		private BufferedReader Reader;
 		
-		private HashMap<String, List<String>> mods;
-		
 		private TwitchTMI TMI;
 		private boolean connected;
 		
 		private ChatService(TwitchTMI TMI) {
-			this.mods = new HashMap<String, List<String>>();
-			
 			this.TMI = TMI;
 			this.connected = false;
 		}
@@ -270,24 +205,24 @@ public class TwitchTMI {
 								case "SUBS_OFF":
 									if(msgid.equalsIgnoreCase("SUBS_ON"))
 										enabled = true;
-									this.TMI.getEventListener().onSubMode(new ChannelModeEvent(this.TMI, rawData, channel, enabled, ChannelModeEvent.Mode.SUBSCRIBER));
-									this.TMI.getEventListener().onChannelMode(new ChannelModeEvent(this.TMI, rawData, channel, enabled, ChannelModeEvent.Mode.SUBSCRIBER));
+									this.TMI.getEventListener().onSubMode(new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.SUBSCRIBER));
+									this.TMI.getEventListener().onChannelMode(new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.SUBSCRIBER));
 								break;
 								
 								case "EMOTE_ONLY_ON":
 								case "EMOTE_ONLY_OFF":
 									if(msgid.equalsIgnoreCase("EMOTE_ONLY_ON"))
 										enabled = true;
-									this.TMI.getEventListener().onEmoteMode(new ChannelModeEvent(this.TMI, rawData, channel, enabled, ChannelModeEvent.Mode.EMOTE));
-									this.TMI.getEventListener().onChannelMode(new ChannelModeEvent(this.TMI, rawData, channel, enabled, ChannelModeEvent.Mode.EMOTE));
+									this.TMI.getEventListener().onEmoteMode(new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.EMOTE));
+									this.TMI.getEventListener().onChannelMode(new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.EMOTE));
 								break;
 								
 								case "R9K_ON":
 								case "R9K_OFF":
 									if(msgid.equalsIgnoreCase("R9K_ON"))
 										enabled = true;
-									this.TMI.getEventListener().onR9KMode(new ChannelModeEvent(this.TMI, rawData, channel, enabled, ChannelModeEvent.Mode.R9K));
-									this.TMI.getEventListener().onChannelMode(new ChannelModeEvent(this.TMI, rawData, channel, enabled, ChannelModeEvent.Mode.R9K));
+									this.TMI.getEventListener().onR9KMode(new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.R9K));
+									this.TMI.getEventListener().onChannelMode(new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.R9K));
 								break;
 								
 								case "ROOM_MODS":
@@ -329,13 +264,13 @@ public class TwitchTMI {
 						case "MODE":
 							switch(msg.toUpperCase()) {
 								case "+O":
-									if(!this.mods.get(channel).contains(rawData.params.get(2).toLowerCase()))
-										this.mods.get(channel).add(rawData.params.get(2).toLowerCase());
+									if(!this.TMI.getChannel(channel).getMods().contains(rawData.params.get(2).toLowerCase()))
+										this.TMI.getChannel(channel).getMods().add(rawData.params.get(2).toLowerCase());
 								break;
 								
 								case "-O":
-									if(this.mods.get(channel).contains(rawData.params.get(2).toLowerCase()))
-										this.mods.get(channel).remove(rawData.params.get(2).toLowerCase());
+									if(this.TMI.getChannel(channel).getMods().contains(rawData.params.get(2).toLowerCase()))
+										this.TMI.getChannel(channel).getMods().remove(rawData.params.get(2).toLowerCase());
 								break;
 							}
 						break;
@@ -352,22 +287,22 @@ public class TwitchTMI {
 						
 						case "JOIN":
 							if(username.equalsIgnoreCase(this.TMI.getUsername()))
-								if(!this.mods.containsKey(channel))
-									this.mods.put(channel, new ArrayList<String>());
-							this.TMI.getEventListener().onChannelJoin(new ChannelJoinEvent(this.TMI, rawData, channel, username, username.equalsIgnoreCase(this.TMI.getUsername())));
+								if(!this.TMI.getConnectedChannels().containsKey(channel))
+									this.TMI.getConnectedChannels().put(channel, new Channel(this.TMI, channel, true));
+							this.TMI.getEventListener().onChannelJoin(new ChannelJoinEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, username.equalsIgnoreCase(this.TMI.getUsername())));
 						break;
 						
 						case "PART":
 							if(username.equalsIgnoreCase(this.TMI.getUsername()))
-								if(this.mods.containsKey(channel))
-									this.mods.remove(channel);
-							this.TMI.getEventListener().onChannelLeave(new ChannelLeaveEvent(this.TMI, rawData, channel, username, username.equalsIgnoreCase(this.TMI.getUsername())));
+								if(this.TMI.getConnectedChannels().containsKey(channel))
+									this.TMI.getConnectedChannels().remove(channel);
+							this.TMI.getEventListener().onChannelLeave(new ChannelLeaveEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, username.equalsIgnoreCase(this.TMI.getUsername())));
 						break;
 						
 						case "WHISPER":
 							if(!rawData.tags.containsKey("username"))
 								rawData.tags.put("username", rawData.prefix.split("!")[0]);
-							this.TMI.getEventListener().onWhisper(new MessageEvent(this.TMI, rawData, rawData.tags.get("username").toLowerCase(), Message.MessageType.WHISPER));
+							this.TMI.getEventListener().onWhisper(new MessageEvent(this.TMI, rawData, this.TMI.getChannel(channel), rawData.tags.get("username").toLowerCase(), Message.MessageType.WHISPER));
 						break;
 						
 						case "PRIVMSG":
@@ -376,20 +311,20 @@ public class TwitchTMI {
 									int count = 0;
 									if(msg.toLowerCase().contains("hosting you for"))
 										count = Utils.extractNumber(msg);
-									this.TMI.getEventListener().onHosted(new HostEvent(this.TMI, rawData, channel, Utils.username(msg.split(" ")[0]), count, msg.toLowerCase().contains("auto")));
+									this.TMI.getEventListener().onHosted(new HostEvent(this.TMI, rawData, this.TMI.getChannel(channel), Utils.username(msg.split(" ")[0]), count, msg.toLowerCase().contains("auto")));
 								}
 							} else {
 								if(msg.matches("^\\u0001ACTION ([^\\u0001]+)\\u0001$")) {
-									MessageEvent message = new MessageEvent(this.TMI, rawData, username, Message.MessageType.ACTION);
+									MessageEvent message = new MessageEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, Message.MessageType.ACTION);
 									this.TMI.getEventListener().onAction(message);
 									this.TMI.getEventListener().onMessage(message);
 								} else {
 									if(rawData.getTags().containsKey("bits")) {
-										Message message = new Message(this.TMI, rawData, username, Message.MessageType.CHEER);
+										Message message = new Message(this.TMI, rawData, this.TMI.getChannel(channel), username, Message.MessageType.CHEER);
 										this.TMI.getEventListener().onCheer(new CheerEvent(this.TMI, rawData, message));
 										this.TMI.getEventListener().onMessage(new MessageEvent(this.TMI, rawData, message));
 									} else
-										this.TMI.getEventListener().onMessage(new MessageEvent(this.TMI, rawData, username, Message.MessageType.MESSAGE));
+										this.TMI.getEventListener().onMessage(new MessageEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, Message.MessageType.MESSAGE));
 								}
 							}
 						break;

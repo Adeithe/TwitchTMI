@@ -7,19 +7,19 @@ public class Message {
 	private TwitchTMI TMI;
 	private RawData rawData;
 	
+	@Getter private Channel channel;
 	@Getter private String sender;
 	@Getter private User user;
-	@Getter private Channel channel;
 	@Getter private String text;
 	@Getter private MessageType type;
 	
-	public Message(TwitchTMI TMI, RawData rawData, String sender, MessageType type) {
+	public Message(TwitchTMI TMI, RawData rawData, Channel channel, String sender, MessageType type) {
 		this.TMI = TMI;
 		this.rawData = rawData;
 		
+		this.channel = channel;
 		this.sender = sender;
 		this.user = new User(this.TMI);
-		this.channel = null;
 		this.text = null;
 		this.type = type;
 		
@@ -40,8 +40,6 @@ public class Message {
 			this.user.setUserInfo(key, val);
 		}
 		
-		if(this.rawData.getParams().size() >= 1)
-			this.channel = new Channel(this.TMI, this.rawData.getParams().get(0).replaceFirst("#", ""));
 		if(this.rawData.getParams().size() >= 2)
 			this.text = this.rawData.getParams().get(1);
 	}

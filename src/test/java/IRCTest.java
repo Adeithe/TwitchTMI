@@ -1,9 +1,6 @@
 import tv.twitch.tmi.TwitchTMI;
-import tv.twitch.tmi.events.obj.ChannelJoinEvent;
-import tv.twitch.tmi.events.obj.CheerEvent;
-import tv.twitch.tmi.events.obj.ConnectEvent;
+import tv.twitch.tmi.events.obj.*;
 import tv.twitch.tmi.events.EventListener;
-import tv.twitch.tmi.events.obj.MessageEvent;
 
 public class IRCTest {
 	public static void main(String[] args) {
@@ -19,15 +16,20 @@ public class IRCTest {
 		
 		TMI.setEventListener(new EventListener() {
 			public void onConnect(ConnectEvent event) throws Exception {
-				TMI.join(channel);
+				TMI.getChannel(channel).join();
 			}
 			
 			public void onChannelJoin(ChannelJoinEvent event) throws Exception {
-				//TMI.sendWhisper(channel, "/me test");
+				//TMI.sendMessage(channel, "/me test");
+				System.out.println("JOIN - "+ event.getUsername());
+			}
+			
+			public void onChannelLeave(ChannelLeaveEvent event) throws Exception {
+				System.out.println("PART - "+ event.getUser());
 			}
 			
 			public void onWhisper(MessageEvent event) throws Exception {
-				System.out.println("WHISPER "+ event.getSender() +": "+ event.getMessage().getText());
+				System.out.println("WHISPER - "+ event.getSender() +": "+ event.getMessage().getText());
 			}
 			
 			public void onAction(MessageEvent event) {

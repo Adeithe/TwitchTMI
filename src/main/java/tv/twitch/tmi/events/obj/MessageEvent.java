@@ -15,8 +15,8 @@ public class MessageEvent implements IEvent {
 	@Getter private Message message;
 	@Getter private Channel channel;
 	
-	public MessageEvent(TwitchTMI TMI, RawData rawData, String sender, Message.MessageType type) {
-		this(TMI, rawData, new Message(TMI, rawData, sender, type));
+	public MessageEvent(TwitchTMI TMI, RawData rawData, Channel channel, String sender, Message.MessageType type) {
+		this(TMI, rawData, new Message(TMI, rawData, channel, sender, type));
 	}
 	
 	public MessageEvent(TwitchTMI TMI, RawData rawData, Message message) {

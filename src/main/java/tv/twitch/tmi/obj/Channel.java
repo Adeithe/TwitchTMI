@@ -6,15 +6,22 @@ import tv.twitch.tmi.exception.ChannelJoinFailureException;
 import tv.twitch.tmi.exception.ChannelLeaveFailureException;
 import tv.twitch.tmi.exception.MessageSendFailureException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Channel {
 	private TwitchTMI TMI;
 	
-	@Getter private String channel;
+	@Getter private String name;
+	@Getter private List<String> mods;
+	@Getter private boolean connected;
 	
-	public Channel(TwitchTMI TMI, String channel) {
+	public Channel(TwitchTMI TMI, String channel, boolean connected) {
 		this.TMI = TMI;
 		
-		this.channel = channel.toLowerCase();
+		this.name = channel.toLowerCase();
+		this.mods = new ArrayList<String>();
+		this.connected = connected;
 	}
 	
 	/**
@@ -24,7 +31,16 @@ public class Channel {
 	 * @throws ChannelJoinFailureException
 	 */
 	public void join() throws ChannelJoinFailureException {
-		this.TMI.join(this.channel);
+		String channel = this.getName();
+		try {
+			if(!channel.startsWith("#"))
+				channel = "#" + channel;
+			if(!this.TMI.isConnected() || this.TMI.getChannel(this.getName()).isConnected())
+				throw new Exception("Unable to join channel!");
+			this.TMI.sendRawData("JOIN " + channel);
+		} catch(Exception e) {
+			throw new ChannelJoinFailureException("Something went wrong while joining the channel!");
+		}
 	}
 	
 	/**
@@ -35,7 +51,16 @@ public class Channel {
 	 * @throws MessageSendFailureException
 	 */
 	public void sendMessage(String message) throws MessageSendFailureException {
-		this.TMI.sendMessage(this.channel, message);
+		String channel = this.getName();
+		try {
+			if(!channel.startsWith("#"))
+				channel = "#" + channel;
+			if(!this.TMI.isConnected() || !this.isConnected())
+				throw new Exception("Unable to send message!");
+			this.TMI.sendRawData("PRIVMSG "+ channel +" :"+ message);
+		} catch(Exception e) {
+			throw new MessageSendFailureException("Something went wrong while sending your message!");
+		}
 	}
 	
 	/**
@@ -46,15 +71,27 @@ public class Channel {
 	 * @return
 	 */
 	public boolean isMod(String username) {
-		return this.TMI.isMod(this.channel, username);
+		if(this.isConnected())
+			if(this.getMods().contains(username.toLowerCase()))
+				return true;
+		return false;
 	}
 	
 	/**
-	 * Leaves the channel removing the ability to chat there until rejoined
+	 * Leaves the channel removing the ability to chat here until rejoined
 	 *
 	 * @throws ChannelLeaveFailureException
 	 */
 	public void leave() throws ChannelLeaveFailureException {
-		this.TMI.leave(this.channel);
+		String channel = this.getName();
+		try {
+			if(!channel.startsWith("#"))
+				channel = "#" + channel;
+			if(!this.TMI.isConnected() || !this.isConnected())
+				throw new Exception("Unable to leave channel!");
+			this.TMI.sendRawData("PART " + channel);
+		} catch(Exception e) {
+			throw new ChannelLeaveFailureException("Something went wrong while leaving the channel!");
+		}
 	}
 }
