@@ -23,7 +23,11 @@ public class IRCTest {
 			}
 			
 			public void onChannelJoin(ChannelJoinEvent event) throws Exception {
-				//TMI.sendMessage(channel, "/me test");
+				//TMI.sendWhisper(channel, "/me test");
+			}
+			
+			public void onWhisper(MessageEvent event) throws Exception {
+				System.out.println("WHISPER "+ event.getSender() +": "+ event.getMessage().getText());
 			}
 			
 			public void onAction(MessageEvent event) {

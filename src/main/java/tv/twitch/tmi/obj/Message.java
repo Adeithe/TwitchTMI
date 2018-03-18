@@ -1,21 +1,24 @@
 package tv.twitch.tmi.obj;
 
 import lombok.Getter;
+import tv.twitch.tmi.TwitchTMI;
 
 public class Message {
+	private TwitchTMI TMI;
 	private RawData rawData;
 	
 	@Getter private String sender;
 	@Getter private User user;
-	@Getter private String channel;
+	@Getter private Channel channel;
 	@Getter private String text;
 	@Getter private MessageType type;
 	
-	public Message(RawData rawData, String sender, MessageType type) {
+	public Message(TwitchTMI TMI, RawData rawData, String sender, MessageType type) {
+		this.TMI = TMI;
 		this.rawData = rawData;
 		
 		this.sender = sender;
-		this.user = new User();
+		this.user = new User(this.TMI);
 		this.channel = null;
 		this.text = null;
 		this.type = type;
@@ -38,7 +41,7 @@ public class Message {
 		}
 		
 		if(this.rawData.getParams().size() >= 1)
-			this.channel = this.rawData.getParams().get(0).replaceFirst("#", "");
+			this.channel = new Channel(this.TMI, this.rawData.getParams().get(0).replaceFirst("#", ""));
 		if(this.rawData.getParams().size() >= 2)
 			this.text = this.rawData.getParams().get(1);
 	}

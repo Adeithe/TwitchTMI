@@ -1,10 +1,14 @@
 package tv.twitch.tmi.obj;
 
 import lombok.Getter;
+import tv.twitch.tmi.TwitchTMI;
+import tv.twitch.tmi.exception.MessageSendFailureException;
 
 import java.awt.Color;
 
 public class User {
+	private TwitchTMI TMI;
+	
 	@Getter private int id;
 	@Getter private String displayName;
 	@Getter private String username;
@@ -13,7 +17,9 @@ public class User {
 	@Getter private boolean subscriber;
 	@Getter private boolean turbo;
 	
-	public User() {
+	public User(TwitchTMI TMI) {
+		this.TMI = TMI;
+		
 		this.id = -1;
 		this.displayName = null;
 		this.username = null;
@@ -21,6 +27,15 @@ public class User {
 		this.mod = false;
 		this.subscriber = false;
 		this.turbo = false;
+	}
+	
+	/**
+	 * Sends a whisper to the user
+	 *
+	 * @param message
+	 */
+	public void sendWhisper(String message) throws MessageSendFailureException {
+		this.TMI.sendWhisper(this.username, message);
 	}
 	
 	protected void setUserInfo(String name, String val) {
