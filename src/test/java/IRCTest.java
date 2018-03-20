@@ -41,7 +41,7 @@ public class IRCTest {
 			}
 			
 			public void onCheer(CheerEvent event) {
-				System.out.println("CHEER "+ event.getAmount() +" - "+ event.getSender() +": "+ event.getMessage().getText());
+				System.out.println("CHEER x"+ event.getAmount() +" - "+ event.getSender() +": "+ event.getMessage().getText());
 			}
 		});
 	}

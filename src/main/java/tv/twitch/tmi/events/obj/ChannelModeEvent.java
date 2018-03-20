@@ -12,20 +12,41 @@ public class ChannelModeEvent implements IEvent {
 	
 	@Getter private Channel channel;
 	@Getter private boolean enabled;
+	@Getter private int duration;
 	@Getter private Mode mode;
 	
 	public ChannelModeEvent(TwitchTMI TMI, RawData rawData, Channel channel, boolean enabled, Mode mode) {
+		this(TMI, rawData, channel, enabled, -1, mode);
+	}
+	
+	public ChannelModeEvent(TwitchTMI TMI, RawData rawData, Channel channel, boolean enabled, int duration, Mode mode) {
 		this.TMI = TMI;
 		this.rawData = rawData;
 		
 		this.channel = channel;
 		this.enabled = enabled;
+		this.duration = duration;
 		this.mode = mode;
 	}
 	
+	/**
+	 * Returns true if the event uses a Mode that may provide a duration
+	 *
+	 * @return
+	 */
+	public boolean hasDuration() {
+		if((this.getMode().equals(Mode.FOLLOWER) && this.isEnabled()) || (this.getMode().equals(Mode.SLOW) && this.isEnabled()))
+			if(this.getDuration() > -1)
+				return true;
+		return false;
+	}
+	
 	public enum Mode {
-		SUBSCRIBER,
 		EMOTE,
-		R9K
+		FOLLOWER,
+		R9K,
+		SLOW,
+		SUBSCRIBER,
+		CLEAR
 	}
 }

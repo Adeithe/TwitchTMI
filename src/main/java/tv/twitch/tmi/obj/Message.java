@@ -3,6 +3,9 @@ package tv.twitch.tmi.obj;
 import lombok.Getter;
 import tv.twitch.tmi.TwitchTMI;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Message {
 	private TwitchTMI TMI;
 	private RawData rawData;
@@ -42,5 +45,9 @@ public class Message {
 		
 		if(this.rawData.getParams().size() >= 2)
 			this.text = this.rawData.getParams().get(1);
+		
+		Matcher matcher = Pattern.compile("^\\u0001ACTION ([^\\u0001]+)\\u0001$").matcher(this.getText());
+		if(matcher.find())
+			this.text = matcher.group(1);
 	}
 }

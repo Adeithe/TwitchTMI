@@ -12,12 +12,17 @@ public interface EventListener {
 	default void onAction(MessageEvent event) throws Exception {}
 	default void onCheer(CheerEvent event) throws Exception {}
 	
-	default void onChannelMode(ChannelModeEvent event) throws Exception {}
-	default void onSubMode(ChannelModeEvent event) throws Exception {}
-	default void onEmoteMode(ChannelModeEvent event) throws Exception {}
-	default void onR9KMode(ChannelModeEvent event) throws Exception {}
+	default void onBan(BanEvent event) throws Exception {}
+	default void onTimeout(BanEvent event) throws Exception {}
 	
-	default void onHosted(HostEvent event) throws Exception {}
+	default void onEmoteMode(ChannelModeEvent event) throws Exception {}
+	default void onFollowMode(ChannelModeEvent event) throws Exception {}
+	default void onR9KMode(ChannelModeEvent event) throws Exception {}
+	default void onSlowMode(ChannelModeEvent event) throws Exception {}
+	default void onSubMode(ChannelModeEvent event) throws Exception {}
+	default void onChannelMode(ChannelModeEvent event) throws Exception {}
+	
+	default void onHost(HostEvent event) throws Exception {}
 	
 	default void onPing(PingEvent event) throws Exception {}
 }

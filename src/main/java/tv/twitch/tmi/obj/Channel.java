@@ -16,11 +16,30 @@ public class Channel {
 	@Getter private List<String> mods;
 	@Getter private boolean connected;
 	
+	@Getter private boolean emoteOnly;
+	@Getter private boolean followersOnly;
+	@Getter private boolean R9KMode;
+	@Getter private boolean slowMode;
+	@Getter private boolean subMode;
+	
+	@Getter private int followersOnlyDuration;
+	@Getter private int slowModeDuration;
+	
 	public Channel(TwitchTMI TMI, String channel, boolean connected) {
 		this.TMI = TMI;
 		
 		this.name = channel.toLowerCase();
 		this.mods = new ArrayList<String>();
+		
+		this.emoteOnly = false;
+		this.followersOnly = false;
+		this.R9KMode = false;
+		this.slowMode = false;
+		this.subMode = false;
+		
+		this.followersOnlyDuration = -1;
+		this.slowModeDuration = -1;
+		
 		this.connected = connected;
 	}
 	
@@ -64,6 +83,61 @@ public class Channel {
 	}
 	
 	/**
+	 * Permanently bans the provided user from this channel
+	 *
+	 * @param username
+	 * @throws MessageSendFailureException
+	 */
+	public void ban(String username) throws MessageSendFailureException {
+		this.sendMessage("/ban "+ username.toLowerCase());
+	}
+	
+	/**
+	 * Times the given user out for 1 second
+	 *
+	 * @param username
+	 * @throws MessageSendFailureException
+	 */
+	public void purge(String username) throws MessageSendFailureException {
+		this.timeout(username, 1);
+	}
+	
+	/**
+	 * Bans the provided user from talking in chat for a set period of time
+	 *
+	 * @param username
+	 * @param seconds
+	 * @throws MessageSendFailureException
+	 */
+	public void timeout(String username, int seconds) throws MessageSendFailureException {
+		this.timeout(username, seconds, null);
+	}
+	
+	/**
+	 * Bans the provided user from talking in chat for a set period of time
+	 *
+	 * @param username
+	 * @param seconds
+	 * @param reason
+	 * @throws MessageSendFailureException
+	 */
+	public void timeout(String username, int seconds, String reason) throws MessageSendFailureException {
+		if(reason == null)
+			reason = "";
+		this.sendMessage("/timeout "+ username +" "+ seconds +" "+ reason);
+	}
+	
+	/**
+	 * Unbans the the provided user from chat
+	 *
+	 * @param username
+	 * @throws MessageSendFailureException
+	 */
+	public void unban(String username) throws MessageSendFailureException {
+		this.sendMessage("/unban "+ username.toLowerCase());
+	}
+	
+	/**
 	 * Returns true if the given user is a moderator and is currently in chat
 	 * <b>NOTE:</b> This is not 100% reliable and may return misinformation!
 	 *
@@ -93,5 +167,49 @@ public class Channel {
 		} catch(Exception e) {
 			throw new ChannelLeaveFailureException("Something went wrong while leaving the channel!");
 		}
+	}
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setEmoteOnly(boolean isEmoteOnly) {
+		this.emoteOnly = isEmoteOnly;
+	}
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setFollowersOnly(boolean isFollowersOnly, int duration) {
+		if(duration > -1)
+			duration *= 60;
+		this.followersOnly = isFollowersOnly;
+		this.followersOnlyDuration = duration;
+	}
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setR9KMode(boolean isR9KMode) {
+		this.R9KMode = isR9KMode;
+	}
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setSlowMode(boolean isSlowMode, int duration) {
+		this.slowMode = isSlowMode;
+		this.slowModeDuration = duration;
+	}
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setSubOnly(boolean isSubMode) {
+		this.subMode = isSubMode;
 	}
 }
