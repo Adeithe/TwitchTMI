@@ -1,6 +1,7 @@
 import tv.twitch.tmi.TwitchTMI;
 import tv.twitch.tmi.events.obj.*;
 import tv.twitch.tmi.events.EventListener;
+import tv.twitch.tmi.obj.Badge;
 
 public class IRCTest {
 	public static void main(String[] args) {
@@ -28,6 +29,10 @@ public class IRCTest {
 				System.out.println("PART - "+ event.getUser());
 			}
 			
+			public void onHost(HostEvent event) throws Exception {
+				System.out.println("HOST - "+ event.getHoster().getName() +" is now hosting channel "+ event.getChannel().getName() +" for "+ event.getViewers() +" viewers!");
+			}
+			
 			public void onWhisper(MessageEvent event) throws Exception {
 				System.out.println("WHISPER - "+ event.getSender() +": "+ event.getMessage().getText());
 			}
@@ -38,6 +43,8 @@ public class IRCTest {
 			
 			public void onMessage(MessageEvent event) {
 				System.out.println("MESSAGE - "+ event.getSender() +": "+ event.getMessage().getText());
+				for(Badge b : event.getMessage().getUser().getBadges())
+					System.out.println("	- "+ b.getType().toString() +" "+ b.getData());
 			}
 			
 			public void onCheer(CheerEvent event) {

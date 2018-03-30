@@ -20,7 +20,7 @@ public class Utils {
 		if(str == null)
 			return str;
 		for(String key : replacements.keySet())
-			str = str.replaceAll(key, replacements.get("key"));
+			str = str.replaceAll(key, replacements.getOrDefault("key", ""));
 		return str;
 	}
 }

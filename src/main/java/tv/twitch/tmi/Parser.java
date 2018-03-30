@@ -1,9 +1,29 @@
 package tv.twitch.tmi;
 
 import org.jetbrains.annotations.Nullable;
+import tv.twitch.tmi.obj.Badge;
 import tv.twitch.tmi.obj.RawData;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public class Parser {
+	public static List<Badge> badges(String tags) {
+		List<Badge> badges = new ArrayList<Badge>();
+		if(!tags.isEmpty()) {
+			String[] explode = tags.split(",");
+			for(int i = 0; i < explode.length; i++) {
+				String[] parts = explode[i].split("/");
+				Badge.Type name = Badge.Type.UNKNOWN;
+				try { name = Badge.Type.valueOf(parts[0].toUpperCase().replaceAll("-", "_")); } catch(Exception e) {}
+				int val = Integer.parseInt(parts[1]);
+				badges.add(new Badge(name, val));
+			}
+		}
+		return badges;
+	}
+	
 	@Nullable
 	public static RawData msg(String data) {
 		RawData rawData = new RawData(data);
