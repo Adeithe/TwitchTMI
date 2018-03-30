@@ -2,6 +2,7 @@ package tv.twitch.tmi;
 
 import org.jetbrains.annotations.Nullable;
 import tv.twitch.tmi.obj.Badge;
+import tv.twitch.tmi.obj.Emote;
 import tv.twitch.tmi.obj.RawData;
 
 import java.util.ArrayList;
@@ -9,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Parser {
-	public static List<Badge> badges(String tags) {
+	public static List<Badge> badges(String data) {
 		List<Badge> badges = new ArrayList<Badge>();
-		if(!tags.isEmpty()) {
-			String[] explode = tags.split(",");
+		if(!data.isEmpty()) {
+			String[] explode = data.split(",");
 			for(int i = 0; i < explode.length; i++) {
 				String[] parts = explode[i].split("/");
 				Badge.Type name = Badge.Type.UNKNOWN;
@@ -22,6 +23,19 @@ public class Parser {
 			}
 		}
 		return badges;
+	}
+	
+	public static List<Emote> emotes(String data) {
+		List<Emote> emotes = new ArrayList<Emote>();
+		if(!data.isEmpty()) {
+			String[] all = data.split("/");
+			for(int i = 0; i < all.length; i++) {
+				String[] parts = all[i].split(":");
+				int id = Integer.parseInt(parts[0]);
+				emotes.add(new Emote(id, parts[1].split(",")));
+			}
+		}
+		return emotes;
 	}
 	
 	@Nullable

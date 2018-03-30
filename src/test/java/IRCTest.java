@@ -2,6 +2,7 @@ import tv.twitch.tmi.TwitchTMI;
 import tv.twitch.tmi.events.obj.*;
 import tv.twitch.tmi.events.EventListener;
 import tv.twitch.tmi.obj.Badge;
+import tv.twitch.tmi.obj.Emote;
 
 public class IRCTest {
 	public static void main(String[] args) {
@@ -43,8 +44,12 @@ public class IRCTest {
 			
 			public void onMessage(MessageEvent event) {
 				System.out.println("MESSAGE - "+ event.getSender() +": "+ event.getMessage().getText());
+				System.out.println("	BADGES:");
 				for(Badge b : event.getMessage().getUser().getBadges())
-					System.out.println("	- "+ b.getType().toString() +" "+ b.getData());
+					System.out.println("		- "+ b.getType().toString() +" "+ b.getData());
+				System.out.println("	EMOTES:");
+				for(Emote e : event.getMessage().getEmotes())
+					System.out.println("		- "+ e.getID());
 			}
 			
 			public void onCheer(CheerEvent event) {
