@@ -2,19 +2,18 @@ package tv.twitch.tmi.obj;
 
 import lombok.Getter;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class Emote {
 	@Getter private int ID;
 	@Getter private List<Position> positions;
-	@Getter private EmoteURL url;
 	
 	public Emote(int id, String[] positions) {
 		this.ID = id;
 		this.positions = new ArrayList<Position>();
-		this.url = new EmoteURL(id);
 		
 		for(int i = 0; i < positions.length; i++) {
 			String[] parts = positions[i].split("-");
@@ -24,20 +23,25 @@ public class Emote {
 		}
 	}
 	
-	public static class EmoteURL {
-		@Getter private String small;
-		@Getter private String medium;
-		@Getter private String large;
-		
-		public EmoteURL(int id) {
-			this.small = this.toURL(id, 1);
-			this.medium = this.toURL(id, 2);
-			this.large = this.toURL(id, 3);
-		}
-		
-		private String toURL(int id, int size) {
-			return "http://static-cdn.jtvnw.net/emoticons/v1/"+ id +"/"+ size +".0";
-		}
+	/**
+	 * Returns the URL to the emote image as a string.
+	 *
+	 * @param size
+	 * @return
+	 */
+	public String getURLAsString(Size size) {
+		return "http://static-cdn.jtvnw.net/emoticons/v1/"+ this.getID() +"/"+ size.toSize();
+	}
+	
+	/**
+	 * Returns the URL to the emote image.
+	 *
+	 * @param size
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	public URL getURL(Size size) throws MalformedURLException {
+		return new URL(this.getURLAsString(size));
 	}
 	
 	public static class Position {
@@ -47,6 +51,28 @@ public class Emote {
 		public Position(int start, int stop) {
 			this.start = start;
 			this.stop = stop;
+		}
+	}
+	
+	public enum Size {
+		SMALL("SMALL", 1.0),
+		MEDIUM("MEDIUM", 2.0),
+		LARGE("LARGE", 3.0);
+		
+		private String size;
+		private double d;
+		
+		Size(String size, double d) {
+			this.size = size;
+			this.d = d;
+		}
+		
+		public String toString() {
+			return this.size;
+		}
+		
+		public double toSize() {
+			return this.d;
 		}
 	}
 }

@@ -49,7 +49,7 @@ public class IRCTest {
 					System.out.println("		- "+ b.getType().toString() +" "+ b.getData());
 				System.out.println("	EMOTES:");
 				for(Emote e : event.getMessage().getEmotes())
-					System.out.println("		- "+ e.getID());
+					System.out.println("		- "+ e.getID() +" "+ e.getURL(Emote.Size.LARGE));
 			}
 			
 			public void onCheer(CheerEvent event) {
