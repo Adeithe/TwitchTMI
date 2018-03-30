@@ -447,6 +447,8 @@ public class TwitchTMI {
 							break;
 						
 						case "ROOMSTATE":
+							this.TMI.getChannel(channel).__setRoomID(Integer.parseInt(rawData.tags.getOrDefault("room-id", "-1")));
+							
 							if(rawData.tags.containsKey("slow") && !rawData.tags.containsKey("subs-only")) {
 								if(Integer.parseInt(rawData.tags.get("slow")) > 0) {
 									ChannelModeEvent event = new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), true, Integer.parseInt(rawData.tags.get("slow")), ChannelModeEvent.Mode.SLOW);

@@ -12,7 +12,7 @@ import java.util.List;
 public class Parser {
 	public static List<Badge> badges(String data) {
 		List<Badge> badges = new ArrayList<Badge>();
-		if(!data.isEmpty()) {
+		if(data != null && !data.isEmpty()) {
 			String[] explode = data.split(",");
 			for(int i = 0; i < explode.length; i++) {
 				String[] parts = explode[i].split("/");
@@ -27,7 +27,7 @@ public class Parser {
 	
 	public static List<Emote> emotes(String data) {
 		List<Emote> emotes = new ArrayList<Emote>();
-		if(!data.isEmpty()) {
+		if(data != null && !data.isEmpty()) {
 			String[] all = data.split("/");
 			for(int i = 0; i < all.length; i++) {
 				String[] parts = all[i].split(":");

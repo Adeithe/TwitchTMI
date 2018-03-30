@@ -22,7 +22,7 @@ public class Badge {
 		SUBSCRIBER("SUBSCRIBER"),
 		PREMIUM("PREMIUM"),
 		TURBO("TURBO"),
-		UNKNOWN(null);
+		UNKNOWN("UNKNOWN");
 		
 		private String type;
 		

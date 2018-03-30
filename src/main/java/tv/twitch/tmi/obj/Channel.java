@@ -12,6 +12,7 @@ import java.util.List;
 public class Channel {
 	private TwitchTMI TMI;
 	
+	@Getter private int ID;
 	@Getter private String name;
 	@Getter private List<String> mods;
 	@Getter private boolean connected;
@@ -28,6 +29,7 @@ public class Channel {
 	public Channel(TwitchTMI TMI, String channel, boolean connected) {
 		this.TMI = TMI;
 		
+		this.ID = -1;
 		this.name = channel.toLowerCase();
 		this.mods = new ArrayList<String>();
 		
@@ -212,4 +214,10 @@ public class Channel {
 	public void __setSubOnly(boolean isSubMode) {
 		this.subMode = isSubMode;
 	}
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setRoomID(int roomID) { this.ID = roomID; }
 }
