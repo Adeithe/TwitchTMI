@@ -441,7 +441,10 @@ public class TwitchTMI {
 							break;
 						
 						case "USERSTATE":
-							break;
+							if(rawData.getTags().getOrDefault("mod", "0").equals("1"))
+								if(!this.TMI.getChannel(channel).isMod(this.TMI.getUsername()))
+									this.TMI.getChannel(channel).getMods().add(this.TMI.getUsername().toLowerCase());
+						break;
 						
 						case "GLOBALUSERSTATE":
 							break;
