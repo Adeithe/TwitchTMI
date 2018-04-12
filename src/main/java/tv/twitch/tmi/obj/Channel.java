@@ -17,6 +17,8 @@ public class Channel {
 	@Getter private List<String> mods;
 	@Getter private boolean connected;
 	
+	@Getter private boolean mod;
+	@Getter private boolean subscriber;
 	@Getter private boolean emoteOnly;
 	@Getter private boolean followersOnly;
 	@Getter private boolean R9KMode;
@@ -33,6 +35,8 @@ public class Channel {
 		this.name = channel.toLowerCase();
 		this.mods = new ArrayList<String>();
 		
+		this.mod = false;
+		this.subscriber = false;
 		this.emoteOnly = false;
 		this.followersOnly = false;
 		this.R9KMode = false;
@@ -140,6 +144,17 @@ public class Channel {
 	}
 	
 	/**
+	 * Returns true if the bot is a moderator and is currently in chat
+	 *
+	 * @return
+	 */
+	public boolean isMod() {
+		if(this.isConnected())
+			return this.mod;
+		return false;
+	}
+	
+	/**
 	 * Returns true if the given user is a moderator and is currently in chat
 	 * <b>NOTE:</b> This is not 100% reliable and may return misinformation!
 	 *
@@ -220,4 +235,16 @@ public class Channel {
 	 * This method is used internally and may cause issues if you call this method.
 	 */
 	public void __setRoomID(int roomID) { this.ID = roomID; }
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setMod(boolean mod) { this.mod = mod; }
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setSubscriber(boolean subscriber) { this.subscriber = subscriber; }
 }
