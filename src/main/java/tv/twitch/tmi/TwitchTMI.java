@@ -530,8 +530,6 @@ public class TwitchTMI {
 									this.TMI.getEventListener().onChannelMode(event);
 								}
 							}
-							
-							this.TMI.getChannel(channel).sendMessage("/mods");
 						break;
 					}
 				} else if(rawData.getPrefix().equalsIgnoreCase("jtv")) {
@@ -556,9 +554,25 @@ public class TwitchTMI {
 							break;
 						
 						case "JOIN":
-							if(username.equalsIgnoreCase(this.TMI.getUsername()))
+							if(username.equalsIgnoreCase(this.TMI.getUsername())) {
 								if(!this.TMI.getChannel(channel).isConnected())
 									this.TMI.getConnectedChannels().put(channel, new Channel(this.TMI, channel, true));
+								
+								this.Timer.scheduleAtFixedRate(new TimerTask() {
+									@Override
+									public void run() {
+										if(TMI.getChannel(channel).isConnected()) {
+											try {
+												TMI.getChannel(channel).sendMessage("/mods");
+											} catch(MessageSendFailureException e) {
+												e.printStackTrace();
+											}
+										} else
+											this.cancel();
+									}
+								}, 0, 5*60*1000);
+							}
+							
 							this.TMI.getEventListener().onChannelJoin(new ChannelJoinEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, username.equalsIgnoreCase(this.TMI.getUsername())));
 						break;
 						
