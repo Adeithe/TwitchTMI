@@ -280,14 +280,21 @@ public class TwitchTMI {
 								
 								case "ROOM_MODS":
 									String[] mods = msg.split(":")[1].replaceAll(",", "").split(" ");
-									for(String mod : mods)
-										if(!mod.isEmpty() &&!this.TMI.getChannel(channel).isMod(mod))
-											this.TMI.getChannel(channel).getMods().add(mod.toLowerCase());
+									this.TMI.getChannel(channel).__setMod(false);
+									for(String mod : mods) {
+										if(!mod.isEmpty()) {
+											if(!this.TMI.getChannel(channel).isMod(mod))
+												this.TMI.getChannel(channel).getMods().add(mod.toLowerCase());
+											if(mod.equalsIgnoreCase(this.TMI.getUsername()))
+												this.TMI.getChannel(channel).__setMod(true);
+										}
+									}
 									if(!this.TMI.getChannel(channel).isMod(channel))
 										this.TMI.getChannel(channel).getMods().add(channel.toLowerCase());
 								break;
 								
 								case "NO_MODS":
+									this.TMI.getChannel(channel).__setMod(false);
 									for(String mod : this.TMI.getChannel(channel).getMods())
 										this.TMI.getChannel(channel).getMods().remove(mod);
 									if(!this.TMI.getChannel(channel).isMod(channel))
