@@ -13,9 +13,7 @@ import tv.twitch.tmi.obj.RawData;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class TwitchTMI {
 	private ChatService Chat;
@@ -24,6 +22,7 @@ public class TwitchTMI {
 	@Getter private int port;
 	
 	@Getter private HashMap<String, Channel> connectedChannels;
+	@Getter @Setter private int reconnectInterval;
 	@Getter @Setter private EventListener eventListener;
 	@Getter @Setter private String username;
 	@Getter @Setter private String oAuth;
@@ -34,6 +33,7 @@ public class TwitchTMI {
 		this.port = 6667;
 		
 		this.connectedChannels = new HashMap<String, Channel>();
+		this.reconnectInterval = 5;
 		this.eventListener = new EventListener() {};
 		this.verbose = false;
 	}
@@ -44,6 +44,21 @@ public class TwitchTMI {
 	public void connect() {
 		this.Chat = new ChatService(this);
 		this.Chat.start();
+	}
+	
+	/**
+	 * Reconnects to the Twitch IRC Server
+	 */
+	public void reconnect() {
+		if(this.isConnected()) {
+			this.Chat.disconnect();
+			this.Chat.Timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					Chat.connect();
+				}
+			}, this.reconnectInterval * 1000);
+		}
 	}
 	
 	/**
@@ -112,6 +127,8 @@ public class TwitchTMI {
 		private TwitchTMI TMI;
 		private boolean connected;
 		
+		private Timer Timer = new Timer();
+		
 		private ChatService(TwitchTMI TMI) {
 			this.TMI = TMI;
 			this.connected = false;
@@ -120,9 +137,7 @@ public class TwitchTMI {
 		@Override
 		public void run() {
 			try {
-				this.Socket = new Socket(this.TMI.getIP(), this.TMI.getPort());
-				this.Writer = new BufferedWriter(new OutputStreamWriter(this.Socket.getOutputStream()));
-				this.Reader = new BufferedReader(new InputStreamReader(this.Socket.getInputStream()));
+				this.connect();
 				
 				this.sendRawData(
 					"PASS "+ this.TMI.getOAuth(),
@@ -140,8 +155,28 @@ public class TwitchTMI {
 				}
 			} catch(Exception e) {
 				e.printStackTrace();
-				this.connected = false;
 				this.interrupt();
+			}
+		}
+		
+		private void connect() {
+			try {
+				this.Socket = new Socket(this.TMI.getIP(), this.TMI.getPort());
+				this.Writer = new BufferedWriter(new OutputStreamWriter(this.Socket.getOutputStream()));
+				this.Reader = new BufferedReader(new InputStreamReader(this.Socket.getInputStream()));
+			} catch(Exception e) {
+				this.connected = false;
+			}
+		}
+		
+		private void disconnect() {
+			try {
+				this.Socket.close();
+				this.Writer.close();
+				this.Reader.close();
+				this.connected = false;
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
 		}
 		
@@ -244,10 +279,20 @@ public class TwitchTMI {
 								break;
 								
 								case "ROOM_MODS":
-									break;
+									String[] mods = msg.split(":")[1].replaceAll(",", "").split(" ");
+									for(String mod : mods)
+										if(!mod.isEmpty() &&!this.TMI.getChannel(channel).isMod(mod))
+											this.TMI.getChannel(channel).getMods().add(mod.toLowerCase());
+									if(!this.TMI.getChannel(channel).isMod(channel))
+										this.TMI.getChannel(channel).getMods().add(channel.toLowerCase());
+								break;
 								
 								case "NO_MODS":
-									break;
+									for(String mod : this.TMI.getChannel(channel).getMods())
+										this.TMI.getChannel(channel).getMods().remove(mod);
+									if(!this.TMI.getChannel(channel).isMod(channel))
+										this.TMI.getChannel(channel).getMods().add(channel.toLowerCase());
+								break;
 								
 								case "MSG_CHANNEL_SUSPENDED":
 									break;
@@ -435,7 +480,8 @@ public class TwitchTMI {
 						break;
 						
 						case "RECONNECT":
-							break;
+							this.TMI.reconnect();
+						break;
 						
 						case "SERVERCHANGE":
 							break;
@@ -484,6 +530,8 @@ public class TwitchTMI {
 									this.TMI.getEventListener().onChannelMode(event);
 								}
 							}
+							
+							this.TMI.getChannel(channel).sendMessage("/mods");
 						break;
 					}
 				} else if(rawData.getPrefix().equalsIgnoreCase("jtv")) {
@@ -491,13 +539,11 @@ public class TwitchTMI {
 						case "MODE":
 							switch(msg.toUpperCase()) {
 								case "+O":
-									if(!this.TMI.getChannel(channel).isMod(rawData.params.get(2)))
-										this.TMI.getChannel(channel).getMods().add(rawData.params.get(2).toLowerCase());
+									this.TMI.getChannel(channel).sendMessage("/mods");
 								break;
 								
 								case "-O":
-									if(this.TMI.getChannel(channel).isMod(rawData.params.get(2)))
-										this.TMI.getChannel(channel).getMods().remove(rawData.params.get(2).toLowerCase());
+									this.TMI.getChannel(channel).sendMessage("/mods");
 								break;
 							}
 						break;
