@@ -6,7 +6,10 @@ import tv.twitch.tmi.exception.ChannelJoinFailureException;
 import tv.twitch.tmi.exception.ChannelLeaveFailureException;
 import tv.twitch.tmi.exception.MessageSendFailureException;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Channel {
@@ -16,6 +19,7 @@ public class Channel {
 	@Getter private String name;
 	@Getter private List<String> mods;
 	@Getter private boolean connected;
+	@Getter private LocalDateTime lastUpdated;
 	
 	@Getter private boolean mod;
 	@Getter private boolean subscriber;
@@ -247,4 +251,26 @@ public class Channel {
 	 * This method is used internally and may cause issues if you call this method.
 	 */
 	public void __setSubscriber(boolean subscriber) { this.subscriber = subscriber; }
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setLastUpdated(LocalDateTime lastUpdated) { this.lastUpdated = lastUpdated; }
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public boolean __shouldUpdate() {
+		if(this.lastUpdated == null)
+			return true;
+		
+		Date nextUpdate = Date.from(this.lastUpdated.plusSeconds(60).atOffset(ZoneOffset.UTC).toInstant());
+		Date now = Date.from(LocalDateTime.now().atOffset(ZoneOffset.UTC).toInstant());
+		
+		if(nextUpdate.getTime() <= now.getTime())
+			return true;
+		return false;
+	}
 }

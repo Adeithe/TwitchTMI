@@ -13,6 +13,8 @@ import tv.twitch.tmi.obj.RawData;
 
 import java.io.*;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 public class TwitchTMI {
@@ -231,6 +233,21 @@ public class TwitchTMI {
 							);
 							this.connected = true;
 							this.TMI.getEventListener().onConnect(new ConnectEvent(this.TMI));
+							
+							this.Timer.scheduleAtFixedRate(new TimerTask() {
+								@Override
+								public void run() {
+									for(String key : TMI.getConnectedChannels().keySet()) {
+										if(TMI.getChannel(key).isConnected()) {
+											try {
+												TMI.getChannel(key).sendMessage("/mods");
+											} catch(MessageSendFailureException e) {
+												e.printStackTrace();
+											}
+										}
+									}
+								}
+							}, 5*60*1000, 5*60*1000);
 						break;
 						
 						case "NOTICE":
@@ -260,7 +277,10 @@ public class TwitchTMI {
 								
 								case "SLOW_ON":
 								case "SLOW_OFF":
-									break;
+									if(msgid.equalsIgnoreCase("SLOW_ON"))
+										enabled = true;
+									this.TMI.getEventListener().onChannelMode(new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.SLOW));
+								break;
 								
 								case "FOLLOWERS_ON_ZERO":
 								case "FOLLOWERS_ON":
@@ -291,6 +311,7 @@ public class TwitchTMI {
 									}
 									if(!this.TMI.getChannel(channel).isMod(channel))
 										this.TMI.getChannel(channel).getMods().add(channel.toLowerCase());
+									this.TMI.getChannel(channel).__setLastUpdated(LocalDateTime.now());
 								break;
 								
 								case "NO_MODS":
@@ -299,6 +320,7 @@ public class TwitchTMI {
 										this.TMI.getChannel(channel).getMods().remove(mod);
 									if(!this.TMI.getChannel(channel).isMod(channel))
 										this.TMI.getChannel(channel).getMods().add(channel.toLowerCase());
+									this.TMI.getChannel(channel).__setLastUpdated(LocalDateTime.now());
 								break;
 								
 								case "MSG_CHANNEL_SUSPENDED":
@@ -544,11 +566,17 @@ public class TwitchTMI {
 						case "MODE":
 							switch(msg.toUpperCase()) {
 								case "+O":
-									this.TMI.getChannel(channel).sendMessage("/mods");
+									if(this.TMI.getChannel(channel).__shouldUpdate()) {
+										this.TMI.getChannel(channel).sendMessage("/mods");
+										this.TMI.getChannel(channel).__setLastUpdated(LocalDateTime.now());
+									}
 								break;
 								
 								case "-O":
-									this.TMI.getChannel(channel).sendMessage("/mods");
+									if(this.TMI.getChannel(channel).__shouldUpdate()) {
+										this.TMI.getChannel(channel).sendMessage("/mods");
+										this.TMI.getChannel(channel).__setLastUpdated(LocalDateTime.now());
+									}
 								break;
 							}
 						break;
@@ -564,20 +592,7 @@ public class TwitchTMI {
 							if(username.equalsIgnoreCase(this.TMI.getUsername())) {
 								if(!this.TMI.getChannel(channel).isConnected())
 									this.TMI.getConnectedChannels().put(channel, new Channel(this.TMI, channel, true));
-								
-								this.Timer.scheduleAtFixedRate(new TimerTask() {
-									@Override
-									public void run() {
-										if(TMI.getChannel(channel).isConnected()) {
-											try {
-												TMI.getChannel(channel).sendMessage("/mods");
-											} catch(MessageSendFailureException e) {
-												e.printStackTrace();
-											}
-										} else
-											this.cancel();
-									}
-								}, 0, 5*60*1000);
+								this.TMI.getChannel(channel).sendMessage("/mods");
 							}
 							
 							this.TMI.getEventListener().onChannelJoin(new ChannelJoinEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, username.equalsIgnoreCase(this.TMI.getUsername())));
