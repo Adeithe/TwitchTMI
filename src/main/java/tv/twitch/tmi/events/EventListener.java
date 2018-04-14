@@ -28,6 +28,7 @@ public interface EventListener {
 	default void onChannelMode(ChannelModeEvent event) throws Exception {}
 	
 	default void onHost(HostEvent event) throws Exception {}
+	default void onRaid(RaidEvent event) throws Exception {}
 	
 	default void onPing(PingEvent event) throws Exception {}
 	

@@ -549,6 +549,14 @@ public class TwitchTMI {
 										this.TMI.getEventListener().onSubGift(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), recipient, resub, streak, plan));
 										this.TMI.getEventListener().onSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), recipient, resub, streak, plan));
 									break;
+									
+									case "RAID":
+										String source = rawData.getTags().get("msg-param-login");
+										int viewers = 0;
+										try { viewers = Integer.parseInt(rawData.getTags().get("msg-param-viewerCount")); } catch(Exception e) {}
+										
+										this.TMI.getEventListener().onRaid(new RaidEvent(this.TMI, this.TMI.getChannel(channel), source, viewers));
+									break;
 								}
 							}
 						break;
