@@ -148,17 +148,6 @@ public class Channel {
 	}
 	
 	/**
-	 * Returns true if the bot is a moderator and is currently in chat
-	 *
-	 * @return
-	 */
-	public boolean isMod() {
-		if(this.isConnected())
-			return this.mod;
-		return false;
-	}
-	
-	/**
 	 * Returns true if the given user is a moderator and is currently in chat
 	 * <b>NOTE:</b> This is not 100% reliable and may return misinformation!
 	 *
@@ -187,6 +176,13 @@ public class Channel {
 			this.TMI.sendRawData("PART " + channel);
 		} catch(Exception e) {
 			throw new ChannelLeaveFailureException("Something went wrong while leaving the channel!");
+		}
+	}
+	
+	public void update() throws MessageSendFailureException {
+		if(this.__shouldUpdate()) {
+			this.sendMessage("/mods");
+			this.__setLastUpdated(LocalDateTime.now());
 		}
 	}
 	

@@ -23,13 +23,13 @@ public class User {
 	@Getter private boolean turbo;
 	@Getter private List<Badge> badges;
 	
-	public User(TwitchTMI TMI, Channel channel) {
+	public User(TwitchTMI TMI, Channel channel, String username) {
 		this.TMI = TMI;
 		
 		this.id = -1;
 		this.channel = channel;
 		this.displayName = null;
-		this.username = null;
+		this.username = username.toLowerCase();
 		this.color = Color.BLACK;
 		this.broadcaster = false;
 		this.mod = false;
@@ -70,7 +70,11 @@ public class User {
 		return false;
 	}
 	
-	protected void setUserInfo(String name, String val) {
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void setUserInfo(String name, String val) {
 		if(name.startsWith("@"))
 			name = name.replaceFirst("@", "");
 		switch(name.toUpperCase()) {
@@ -85,7 +89,6 @@ public class User {
 			break;
 			case "DISPLAY-NAME":
 				this.displayName = val;
-				this.username = val.toLowerCase();
 			break;
 			case "MOD":
 				this.mod = Boolean.parseBoolean(val);

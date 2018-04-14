@@ -10,6 +10,7 @@ import tv.twitch.tmi.exception.MessageSendFailureException;
 import tv.twitch.tmi.obj.Channel;
 import tv.twitch.tmi.obj.Message;
 import tv.twitch.tmi.obj.RawData;
+import tv.twitch.tmi.obj.User;
 
 import java.io.*;
 import java.net.Socket;
@@ -240,7 +241,7 @@ public class TwitchTMI {
 									for(String key : TMI.getConnectedChannels().keySet()) {
 										if(TMI.getChannel(key).isConnected()) {
 											try {
-												TMI.getChannel(key).sendMessage("/mods");
+												TMI.getChannel(key).update();
 											} catch(MessageSendFailureException e) {
 												e.printStackTrace();
 											}
@@ -509,12 +510,27 @@ public class TwitchTMI {
 						break;
 						
 						case "USERNOTICE":
-							switch(msgid) {
-								case "RESUB":
-									break;
+							if(true) {
+								int streak = 0;
+									try { streak = Integer.parseInt(rawData.getTags().getOrDefault("msg-param-months", "0")); } catch(Exception e) {}
+								User user = new User(this.TMI, this.TMI.getChannel(channel), rawData.getTags().get("login"));
+								for(String key : rawData.getTags().keySet())
+									user.setUserInfo(key, rawData.getTags().get(key));
+								SubEvent.Plan plan = SubEvent.Plan.valueOf(rawData.getTags().getOrDefault("msg-param-sub-plan", "").toUpperCase());
 								
-								case "SUB":
+								switch(msgid) {
+									case "RESUB":
+										if(plan.equals(SubEvent.Plan.PRIME))
+											this.TMI.getEventListener().onPrimeSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), true, streak, plan));
+										this.TMI.getEventListener().onResub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), true, streak, plan));
 									break;
+									
+									case "SUB":
+										if(plan.equals(SubEvent.Plan.PRIME))
+											this.TMI.getEventListener().onPrimeSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), plan));
+										this.TMI.getEventListener().onSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), plan));
+									break;
+								}
 							}
 						break;
 						
@@ -607,17 +623,11 @@ public class TwitchTMI {
 						case "MODE":
 							switch(msg.toUpperCase()) {
 								case "+O":
-									if(this.TMI.getChannel(channel).__shouldUpdate()) {
-										this.TMI.getChannel(channel).sendMessage("/mods");
-										this.TMI.getChannel(channel).__setLastUpdated(LocalDateTime.now());
-									}
+									this.TMI.getChannel(channel).update();
 								break;
 								
 								case "-O":
-									if(this.TMI.getChannel(channel).__shouldUpdate()) {
-										this.TMI.getChannel(channel).sendMessage("/mods");
-										this.TMI.getChannel(channel).__setLastUpdated(LocalDateTime.now());
-									}
+									this.TMI.getChannel(channel).update();
 								break;
 							}
 						break;
@@ -633,7 +643,7 @@ public class TwitchTMI {
 							if(username.equalsIgnoreCase(this.TMI.getUsername())) {
 								if(!this.TMI.getChannel(channel).isConnected())
 									this.TMI.getConnectedChannels().put(channel, new Channel(this.TMI, channel, true));
-								this.TMI.getChannel(channel).sendMessage("/mods");
+								this.TMI.getChannel(channel).update();
 							}
 							
 							this.TMI.getEventListener().onChannelJoin(new ChannelJoinEvent(this.TMI, rawData, this.TMI.getChannel(channel), username, username.equalsIgnoreCase(this.TMI.getUsername())));

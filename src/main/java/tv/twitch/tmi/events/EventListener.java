@@ -12,6 +12,10 @@ public interface EventListener {
 	default void onAction(MessageEvent event) throws Exception {}
 	default void onCheer(CheerEvent event) throws Exception {}
 	
+	default void onResub(SubEvent event) throws Exception {}
+	default void onSub(SubEvent event) throws Exception {}
+	default void onPrimeSub(SubEvent event) throws Exception {}
+	
 	default void onBan(BanEvent event) throws Exception {}
 	default void onTimeout(BanEvent event) throws Exception {}
 	
