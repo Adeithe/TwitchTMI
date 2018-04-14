@@ -511,12 +511,22 @@ public class TwitchTMI {
 						
 						case "USERNOTICE":
 							if(true) {
+								String p = rawData.getTags().getOrDefault("msg-param-sub-plan", "UNKNOWN");
+								if(p.equalsIgnoreCase("1000"))
+									p = "TIER_1";
+								else if(p.equalsIgnoreCase("2000"))
+									p = "TIER_2";
+								else if(p.equalsIgnoreCase("3000"))
+									p = "TIER_3";
+								if(rawData.getTags().containsKey("") && rawData.getTags().containsKey(""))
+									p = "GIFT";
+								
 								int streak = 0;
 									try { streak = Integer.parseInt(rawData.getTags().getOrDefault("msg-param-months", "0")); } catch(Exception e) {}
 								User user = new User(this.TMI, this.TMI.getChannel(channel), rawData.getTags().get("login"));
 								for(String key : rawData.getTags().keySet())
 									user.setUserInfo(key, rawData.getTags().get(key));
-								SubEvent.Plan plan = SubEvent.Plan.valueOf(rawData.getTags().getOrDefault("msg-param-sub-plan", "").toUpperCase());
+								SubEvent.Plan plan = SubEvent.Plan.valueOf(p.toUpperCase());
 								
 								switch(msgid) {
 									case "RESUB":
@@ -529,6 +539,15 @@ public class TwitchTMI {
 										if(plan.equals(SubEvent.Plan.PRIME))
 											this.TMI.getEventListener().onPrimeSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), plan));
 										this.TMI.getEventListener().onSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), plan));
+									break;
+									
+									case "SUBGIFT":
+										boolean resub = false;
+										if(streak > 1) resub = true;
+										String recipient = rawData.getTags().get("msg-param-recipient-user-name");
+										
+										this.TMI.getEventListener().onSubGift(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), recipient, resub, streak, plan));
+										this.TMI.getEventListener().onSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), recipient, resub, streak, plan));
 									break;
 								}
 							}

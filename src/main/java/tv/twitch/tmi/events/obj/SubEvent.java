@@ -14,9 +14,12 @@ public class SubEvent {
 	@Getter private int streak;
 	@Getter private Plan plan;
 	
+	@Getter private String recipient;
+	
 	public SubEvent(TwitchTMI TMI, User user, Channel channel, Plan plan) { this(TMI, user, channel, false, 1, plan); }
 	
-	public SubEvent(TwitchTMI TMI, User user, Channel channel, boolean resub, int streak, Plan plan) {
+	public SubEvent(TwitchTMI TMI, User user, Channel channel, boolean resub, int streak, Plan plan) { this(TMI, user, channel, null, resub, streak, plan); }
+	public SubEvent(TwitchTMI TMI, User user, Channel channel, String recipient, boolean resub, int streak, Plan plan) {
 		this.TMI = TMI;
 		
 		this.user = user;
@@ -24,6 +27,8 @@ public class SubEvent {
 		this.resub = resub;
 		this.streak = streak;
 		this.plan = plan;
+		
+		this.recipient = recipient;
 	}
 	
 	public boolean isPrimeSub() {
@@ -31,8 +36,12 @@ public class SubEvent {
 	}
 	
 	public enum Plan {
-		SUB("Subscription"),
-		PRIME("Prime");
+		TIER_1("Tier 1"),
+		TIER_2("Tier 2"),
+		TIER_3("Tier 3"),
+		PRIME("Prime"),
+		GIFT("Gift"),
+		UNKNOWN("Unknown");
 		
 		private String plan;
 		

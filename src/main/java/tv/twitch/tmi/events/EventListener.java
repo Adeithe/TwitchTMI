@@ -15,6 +15,7 @@ public interface EventListener {
 	default void onResub(SubEvent event) throws Exception {}
 	default void onSub(SubEvent event) throws Exception {}
 	default void onPrimeSub(SubEvent event) throws Exception {}
+	default void onSubGift(SubEvent event) throws Exception {}
 	
 	default void onBan(BanEvent event) throws Exception {}
 	default void onTimeout(BanEvent event) throws Exception {}
