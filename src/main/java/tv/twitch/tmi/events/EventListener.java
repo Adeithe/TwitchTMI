@@ -25,4 +25,6 @@ public interface EventListener {
 	default void onHost(HostEvent event) throws Exception {}
 	
 	default void onPing(PingEvent event) throws Exception {}
+	
+	default void onError(ErrorEvent event) throws Exception {}
 }

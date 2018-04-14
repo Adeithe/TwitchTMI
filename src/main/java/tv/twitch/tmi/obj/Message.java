@@ -27,7 +27,7 @@ public class Message {
 		
 		this.channel = channel;
 		this.sender = sender;
-		this.user = new User(this.TMI);
+		this.user = new User(this.TMI, this.getChannel());
 		this.text = null;
 		this.type = type;
 		this.emotes = new ArrayList<Emote>();

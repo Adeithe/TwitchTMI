@@ -285,7 +285,16 @@ public class TwitchTMI {
 								case "FOLLOWERS_ON_ZERO":
 								case "FOLLOWERS_ON":
 								case "FOLLOWERS_OFF":
-									break;
+									boolean followMode = true;
+									if(msgid.equalsIgnoreCase("FOLLOWERS_OFF"))
+										followMode = false;
+									int duration = -1;
+									if(msgid.equalsIgnoreCase("FOLLOWERS_ON_ZERO"))
+										duration = 0;
+									if(msgid.equalsIgnoreCase("FOLLOWERS_ON"))
+										try { duration = Integer.parseInt(msg.replaceAll("[^0-9]", "")); } catch(Exception e) { e.printStackTrace(); }
+									this.TMI.getEventListener().onFollowMode(new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), followMode, duration, ChannelModeEvent.Mode.FOLLOWER));
+								break;
 								
 								case "R9K_ON":
 								case "R9K_OFF":
@@ -324,7 +333,8 @@ public class TwitchTMI {
 								break;
 								
 								case "MSG_CHANNEL_SUSPENDED":
-									break;
+									this.TMI.getEventListener().onError(new ErrorEvent(this.TMI, this.TMI.getChannel(channel), "Channel is suspended.", ErrorEvent.ErrorType.CHANNEL_SUSPENDED));
+								break;
 								
 								case "ALREADY_BANNED":
 								case "BAD_BAN_ADMIN":
@@ -333,7 +343,23 @@ public class TwitchTMI {
 								case "BAD_BAN_SELF":
 								case "BAD_BAN_STAFF":
 								case "USAGE_BAN":
-									break;
+									if(true) {
+										String error = "Already banned.";
+										if(msgid.equalsIgnoreCase("BAD_BAN_ADMIN"))
+											error = "Cannot ban Twitch Admins.";
+										if(msgid.equalsIgnoreCase("BAD_BAN_BROADCASTER"))
+											error = "Cannot ban broadcaster.";
+										if(msgid.equalsIgnoreCase("BAD_BAN_GLOBAL_MOD"))
+											error = "Cannot ban Global Moderator.";
+										if(msgid.equalsIgnoreCase("BAD_BAN_SELF"))
+											error = "Cannot ban yourself.";
+										if(msgid.equalsIgnoreCase("BAD_BAN_STAFF"))
+											error = "Cannot ban Twitch Staff.";
+										if(msgid.equalsIgnoreCase("USAGE_BAN"))
+											error = "Usage: \"/ban <username>\"";
+										this.TMI.getEventListener().onError(new ErrorEvent(this.TMI, this.TMI.getChannel(channel), error, ErrorEvent.ErrorType.BAN_FAILURE));
+									}
+								break;
 								
 								case "BAN_SUCCESS":
 									break;
@@ -409,13 +435,27 @@ public class TwitchTMI {
 									break;
 								
 								case "USAGE_TIMEOUT":
+								case "BAD_TIMEOUT_DURATION":
 								case "BAD_TIMEOUT_ADMIN":
 								case "BAD_TIMEOUT_BROADCASTER":
-								case "BAD_TIMEOUT_DURATION":
 								case "BAD_TIMEOUT_GLOBAL_MOD":
 								case "BAD_TIMEOUT_SELF":
 								case "BAD_TIMEOUT_STAFF":
-									break;
+									if(true) {
+										String error = "Usage: \"/timeout <username> [duration]\" - Duration (optional, default=600, max=1209600) must be a positive number of seconds.";
+										if(msgid.equalsIgnoreCase("BAD_TIMEOUT_ADMIN"))
+											error = "Cannot timeout Twitch Admins.";
+										if(msgid.equalsIgnoreCase("BAD_TIMEOUT_BROADCASTER"))
+											error = "Cannot timeout broadcaster.";
+										if(msgid.equalsIgnoreCase("BAD_TIMEOUT_GLOBAL_MOD"))
+											error = "Cannot timeout Global Moderator.";
+										if(msgid.equalsIgnoreCase("BAD_TIMEOUT_SELF"))
+											error = "Cannot timeout yourself.";
+										if(msgid.equalsIgnoreCase("BAD_TIMEOUT_STAFF"))
+											error = "Cannot timeout Twitch Staff.";
+										this.TMI.getEventListener().onError(new ErrorEvent(this.TMI, this.TMI.getChannel(channel), error, ErrorEvent.ErrorType.TIMEOUT_FAILURE));
+									}
+								break;
 								
 								case "UNTIMEOUT_SUCCESS":
 								case "UNBAN_SUCCESS":
@@ -441,7 +481,8 @@ public class TwitchTMI {
 									break;
 								
 								case "UNRECOGNIZED_CMD":
-									break;
+									this.TMI.getEventListener().onError(new ErrorEvent(this.TMI, this.TMI.getChannel(channel), "Unrecognized command.", ErrorEvent.ErrorType.UNRECOGNIZED_CMD));
+								break;
 								
 								case "CMDS_AVAILABLE":
 								case "HOST_TARGET_WENT_OFFLINE":

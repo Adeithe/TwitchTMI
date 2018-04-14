@@ -13,25 +13,39 @@ public class User {
 	private TwitchTMI TMI;
 	
 	@Getter private int id;
+	@Getter private Channel channel;
 	@Getter private String displayName;
 	@Getter private String username;
 	@Getter private Color color;
+	@Getter private boolean broadcaster;
 	@Getter private boolean mod;
 	@Getter private boolean subscriber;
 	@Getter private boolean turbo;
 	@Getter private List<Badge> badges;
 	
-	public User(TwitchTMI TMI) {
+	public User(TwitchTMI TMI, Channel channel) {
 		this.TMI = TMI;
 		
 		this.id = -1;
+		this.channel = channel;
 		this.displayName = null;
 		this.username = null;
 		this.color = Color.BLACK;
+		this.broadcaster = false;
 		this.mod = false;
 		this.subscriber = false;
 		this.turbo = false;
 		this.badges = new ArrayList<Badge>();
+	}
+	
+	/**
+	 * Mentions the user with the given message
+	 *
+	 * @param message
+	 * @throws MessageSendFailureException
+	 */
+	public void mention(String message) throws MessageSendFailureException {
+		this.getChannel().sendMessage("@"+ this.getDisplayName() +", "+ message);
 	}
 	
 	/**
@@ -40,7 +54,7 @@ public class User {
 	 * @param message
 	 */
 	public void sendWhisper(String message) throws MessageSendFailureException {
-		this.TMI.sendWhisper(this.username, message);
+		this.TMI.sendWhisper(this.getUsername(), message);
 	}
 	
 	/**
@@ -62,6 +76,7 @@ public class User {
 		switch(name.toUpperCase()) {
 			case "BADGES":
 				this.badges = Parser.badges(val);
+				this.broadcaster = this.hasBadge(Badge.Type.BROADCASTER);
 			break;
 			case "COLOR":
 				try {
