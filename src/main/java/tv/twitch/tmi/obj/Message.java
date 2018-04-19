@@ -50,7 +50,7 @@ public class Message {
 		}
 		
 		this.UID = this.rawData.getTags().getOrDefault("id", "");
-		this.emotes = Parser.emotes(this.rawData.getTags().getOrDefault("emotes", ""));
+		this.emotes = Parser.emotes(this.rawData.getTags().getOrDefault("emotes", ""), ((this.rawData.getParams().size()>1)? this.rawData.getParams().get(1) : ""));
 		
 		if(this.rawData.getParams().size() >= 2)
 			this.text = this.rawData.getParams().get(1);

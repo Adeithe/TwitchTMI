@@ -9,6 +9,7 @@ import java.util.List;
 
 public class Emote {
 	@Getter private int ID;
+	@Getter private String name;
 	@Getter private List<Position> positions;
 	
 	public Emote(int id, String[] positions) {
@@ -42,6 +43,14 @@ public class Emote {
 	 */
 	public URL getURL(Size size) throws MalformedURLException {
 		return new URL(this.getURLAsString(size));
+	}
+	
+	/**
+	 * <b>!!! DO NOT USE !!!</b>
+	 * This method is used internally and may cause issues if you call this method.
+	 */
+	public void __setName(String name) {
+		this.name = name;
 	}
 	
 	public static class Position {

@@ -533,6 +533,7 @@ public class TwitchTMI {
 										if(plan.equals(SubEvent.Plan.PRIME))
 											this.TMI.getEventListener().onPrimeSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), true, streak, plan));
 										this.TMI.getEventListener().onResub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), true, streak, plan));
+										this.TMI.getEventListener().onSub(new SubEvent(this.TMI, user, this.TMI.getChannel(channel), true, streak, plan));
 									break;
 									
 									case "SUB":

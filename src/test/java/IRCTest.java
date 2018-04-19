@@ -30,6 +30,14 @@ public class IRCTest {
 				System.out.println("PART - "+ event.getUser());
 			}
 			
+			public void onSub(SubEvent event) throws Exception {
+				System.out.println("SUB - "+ event.getUser().getDisplayName());
+				System.out.println("	CHANNEL: "+ event.getChannel().getName());
+				System.out.println("	PLAN: "+ event.getPlan().toString());
+				System.out.println("	STREAK: "+ event.getStreak());
+				System.out.println("	RECIPIENT: "+ event.getRecipient());
+			}
+			
 			public void onHost(HostEvent event) throws Exception {
 				System.out.println("HOST - "+ event.getHoster().getName() +" is now hosting channel "+ event.getChannel().getName() +" for "+ event.getViewers() +" viewers!");
 			}

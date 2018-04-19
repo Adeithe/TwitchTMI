@@ -25,14 +25,17 @@ public class Parser {
 		return badges;
 	}
 	
-	public static List<Emote> emotes(String data) {
+	public static List<Emote> emotes(String data, String message) {
 		List<Emote> emotes = new ArrayList<Emote>();
 		if(data != null && !data.isEmpty()) {
 			String[] all = data.split("/");
 			for(int i = 0; i < all.length; i++) {
 				String[] parts = all[i].split(":");
 				int id = Integer.parseInt(parts[0]);
-				emotes.add(new Emote(id, parts[1].split(",")));
+				Emote emote = new Emote(id, parts[1].split(","));
+				Emote.Position pos = emote.getPositions().get(0);
+				emote.__setName(message.substring(pos.getStart(), pos.getStop()+1));
+				emotes.add(emote);
 			}
 		}
 		return emotes;
