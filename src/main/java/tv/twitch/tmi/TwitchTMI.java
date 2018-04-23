@@ -259,6 +259,7 @@ public class TwitchTMI {
 									if(msgid.equalsIgnoreCase("SUBS_ON"))
 										enabled = true;
 									if(true) {
+										this.TMI.getChannel(channel).__setSubOnly(enabled);
 										ChannelModeEvent event = new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.SUBSCRIBER);
 										this.TMI.getEventListener().onSubMode(event);
 										this.TMI.getEventListener().onChannelMode(event);
@@ -270,6 +271,8 @@ public class TwitchTMI {
 									if(msgid.equalsIgnoreCase("EMOTE_ONLY_ON"))
 										enabled = true;
 									if(true) {
+										this.TMI.getChannel(channel).__setEmoteOnly(enabled);
+										
 										ChannelModeEvent event = new ChannelModeEvent(this.TMI, rawData, this.TMI.getChannel(channel), enabled, ChannelModeEvent.Mode.EMOTE);
 										this.TMI.getEventListener().onEmoteMode(event);
 										this.TMI.getEventListener().onChannelMode(event);
