@@ -11,7 +11,9 @@ public interface EventListener {
 	default void onChannelLeave(ChannelEvent event) throws Exception {}
 	
 	default void onHost(HostEvent event) throws Exception {}
+	default void onUnhost(HostEvent event) throws Exception {}
 	
+	default void onChatCleared(ClearChatEvent event) throws Exception {}
 	default void onBan(BanEvent event) throws Exception {}
 	default void onTimeout(BanEvent event) throws Exception {}
 	

@@ -118,7 +118,7 @@ public class TwitchTMI {
 	 * @return
 	 */
 	public Channel getChannel(String channel) {
-		if(channel.startsWith("#")) channel.substring(1);
+		if(channel.startsWith("#")) channel = channel.substring(1);
 		for(Channel cc : this.getConnectedChannels())
 			if(channel.equalsIgnoreCase(cc.getName()))
 				return cc;
@@ -549,7 +549,9 @@ public class TwitchTMI {
 								
 								case "HOST_ON":
 								case "HOST_OFF":
-									break;
+									if(msgid.equalsIgnoreCase("HOST_OFF"))
+										this.TMI.getEventListener().onUnhost(new HostEvent(this.TMI, null, this.TMI.getChannel(channel), 0, false));
+								break;
 								
 								default:
 									if(msg.toLowerCase().contains("login authentication failed"))
@@ -595,10 +597,13 @@ public class TwitchTMI {
 								if(rawData.getTags().containsKey("ban-duration"))
 									timeout = true;
 								reason = rawData.getTags().getOrDefault("ban-reason", null);
-								BanEvent event = new BanEvent(this.TMI, this.TMI.getChannel(channel), msg, Integer.parseInt(rawData.getTags().getOrDefault("ban-duration", "-1")), reason);
-								if(timeout)
-									this.TMI.getEventListener().onTimeout(event);
-								this.TMI.getEventListener().onBan(event);
+								if(reason != null) {
+									BanEvent event = new BanEvent(this.TMI, this.TMI.getChannel(channel), msg, Integer.parseInt(rawData.getTags().getOrDefault("ban-duration", "-1")), reason);
+									if(timeout)
+										this.TMI.getEventListener().onTimeout(event);
+									this.TMI.getEventListener().onBan(event);
+								} else
+									this.TMI.getEventListener().onChatCleared(new ClearChatEvent(this.TMI, this.TMI.getChannel(channel)));
 							}
 						break;
 						

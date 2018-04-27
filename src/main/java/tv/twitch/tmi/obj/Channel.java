@@ -1,20 +1,14 @@
 package tv.twitch.tmi.obj;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import tv.twitch.api.Method;
-import tv.twitch.api.TwitchAPI;
 import tv.twitch.tmi.TwitchTMI;
 import tv.twitch.tmi.Utils;
 import tv.twitch.tmi.exception.MessageSendFailureException;
 import tv.twitch.tmi.obj.extension.BetterTTV;
 import tv.twitch.tmi.obj.extension.FrankerFaceZ;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

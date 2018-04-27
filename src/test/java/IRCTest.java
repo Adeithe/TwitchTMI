@@ -28,13 +28,34 @@ public class IRCTest {
 			public void onChannelJoin(ChannelEvent event) {
 				if(event.isSelf()) {
 					System.out.println("Joined Channel: "+ event.getChannel().getName());
-					System.out.println("	Mod: "+ (event.getChannel().isMod()?"Yes":"No")); //This event.getChannel().isMod() is always false on join atm
+					System.out.println("	Mod: "+ (event.getChannel().isMod()?"Yes":"No")); //<-- event.getChannel().isMod() is ALWAYS false on join atm
 				}
 			}
 			
 			public void onChannelLeave(ChannelEvent event) {
 				if(event.isSelf())
 					System.out.println("Left Channel: "+ event.getChannel().getName());
+			}
+			
+			public void onHost(HostEvent event) {
+				System.out.println(event.getHoster().getName() +" hosted channel "+ event.getChannel().getName());
+			}
+			
+			public void onUnhost(HostEvent event) {
+				System.out.println(event.getHoster().getName() +" exited host mode");
+			}
+			
+			public void onChatCleared(ClearChatEvent event) {
+				System.out.println("A moderator cleared chat for channel "+ event.getChannel().getName());
+			}
+			
+			public void onBan(BanEvent event) {
+				if(!event.isTimeout())
+					System.out.println("User "+ event.getUsername() +" has been banned from channel "+ event.getChannel().getName() +". Reason: "+ event.getReason());
+			}
+			
+			public void onTimeout(BanEvent event) {
+				System.out.println("User "+ event.getUsername() +" has been timed out for "+ event.getDuration() +" seconds in channel "+ event.getChannel().getName() +". Reason: "+ event.getReason());
 			}
 			
 			public void onMessage(MessageEvent event) {

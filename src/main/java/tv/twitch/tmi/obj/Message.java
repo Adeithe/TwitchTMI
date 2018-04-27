@@ -54,9 +54,5 @@ public class Message {
 				if(part.equals(emote.getName()))
 					this.getFFZEmotes().add(emote);
 		}
-		if(this.getTMI().isVerbose()) {
-			System.out.println("[BetterTTV] Found "+ this.getBTTVEmotes().size() +" emotes in message from "+ this.getSender().getUsername() +"!");
-			System.out.println("[FrankerFaceZ] Found "+ this.getFFZEmotes().size() +" emotes in message from "+ this.getSender().getUsername() +"!");
-		}
 	}
 }
