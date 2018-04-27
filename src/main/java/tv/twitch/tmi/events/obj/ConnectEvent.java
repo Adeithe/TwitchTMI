@@ -4,12 +4,13 @@ import lombok.Getter;
 import tv.twitch.tmi.TwitchTMI;
 import tv.twitch.tmi.events.IEvent;
 
+@Getter
 public class ConnectEvent implements IEvent {
 	private TwitchTMI TMI;
 	
-	@Getter private String IP;
-	@Getter private int port;
-	@Getter private String username;
+	private String IP;
+	private int port;
+	private String username;
 	
 	public ConnectEvent(TwitchTMI TMI) {
 		this.TMI = TMI;

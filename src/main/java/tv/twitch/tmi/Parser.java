@@ -83,7 +83,7 @@ public class Parser {
 		nextspace = data.indexOf(" ", position);
 		if(nextspace == -1) {
 			if(data.length() > position) {
-				rawData.command = data.substring(0, position);
+				rawData.command = data.substring(position);
 				return rawData;
 			}
 			return null;

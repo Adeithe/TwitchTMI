@@ -7,13 +7,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class Emote {
-	@Getter private int ID;
-	@Getter private String name;
-	@Getter private List<Position> positions;
+	private int Id;
+	private String name;
+	private List<Position> positions;
 	
 	public Emote(int id, String[] positions) {
-		this.ID = id;
+		this.Id = id;
 		this.positions = new ArrayList<Position>();
 		
 		for(int i = 0; i < positions.length; i++) {
@@ -31,7 +32,7 @@ public class Emote {
 	 * @return
 	 */
 	public String getURLAsString(Size size) {
-		return "http://static-cdn.jtvnw.net/emoticons/v1/"+ this.getID() +"/"+ size.toSize();
+		return "https://static-cdn.jtvnw.net/emoticons/v1/"+ this.getId() +"/"+ size.toSize();
 	}
 	
 	/**

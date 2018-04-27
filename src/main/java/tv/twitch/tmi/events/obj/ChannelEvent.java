@@ -6,24 +6,22 @@ import tv.twitch.tmi.events.IEvent;
 import tv.twitch.tmi.obj.Channel;
 
 @Getter
-public class ChannelModeEvent implements IEvent {
+public class ChannelEvent implements IEvent {
 	private TwitchTMI TMI;
 	private Channel channel;
-	private boolean enabled;
 	private Type type;
+	private boolean self;
 	
-	public ChannelModeEvent(TwitchTMI TMI, Channel channel, boolean enabled, Type type) {
+	public ChannelEvent(TwitchTMI TMI, Channel channel, Type type) { this(TMI, channel, type, false); }
+	public ChannelEvent(TwitchTMI TMI, Channel channel, Type type, boolean self) {
 		this.TMI = TMI;
 		this.channel = channel;
-		this.enabled = enabled;
 		this.type = type;
+		this.self = self;
 	}
 	
 	public enum Type {
-		SUBSCRIBERS_ONLY,
-		EMOTE_ONLY,
-		SLOW,
-		FOLLOWERS_ONLY,
-		R9K
+		JOIN,
+		LEAVE
 	}
 }

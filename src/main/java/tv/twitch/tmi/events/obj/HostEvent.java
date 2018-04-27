@@ -2,26 +2,21 @@ package tv.twitch.tmi.events.obj;
 
 import lombok.Getter;
 import tv.twitch.tmi.TwitchTMI;
-import tv.twitch.tmi.events.IEvent;
 import tv.twitch.tmi.obj.Channel;
-import tv.twitch.tmi.obj.RawData;
 
-public class HostEvent implements IEvent {
+@Getter
+public class HostEvent {
 	private TwitchTMI TMI;
-	private RawData rawData;
+	private Channel channel;
+	private Channel hoster;
+	private int count;
+	private boolean auto;
 	
-	@Getter private Channel channel;
-	@Getter private Channel hoster;
-	@Getter private int viewers;
-	@Getter private boolean autoHost;
-	
-	public HostEvent(TwitchTMI TMI, RawData rawData, Channel channel, Channel hoster, int viewers, boolean autoHost) {
+	public HostEvent(TwitchTMI TMI, Channel channel, Channel hoster, int count, boolean auto) {
 		this.TMI = TMI;
-		this.rawData = rawData;
-		
 		this.channel = channel;
 		this.hoster = hoster;
-		this.viewers = viewers;
-		this.autoHost = autoHost;
+		this.count = count;
+		this.auto = auto;
 	}
 }

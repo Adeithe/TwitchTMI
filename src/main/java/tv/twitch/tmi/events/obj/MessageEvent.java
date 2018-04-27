@@ -3,31 +3,30 @@ package tv.twitch.tmi.events.obj;
 import lombok.Getter;
 import tv.twitch.tmi.TwitchTMI;
 import tv.twitch.tmi.events.IEvent;
-import tv.twitch.tmi.obj.Channel;
 import tv.twitch.tmi.obj.Message;
-import tv.twitch.tmi.obj.RawData;
 import tv.twitch.tmi.obj.User;
 
+@Getter
 public class MessageEvent implements IEvent {
 	private TwitchTMI TMI;
-	private RawData rawData;
+	private User sender;
+	private Message message;
+	private Type type;
+	private boolean self;
 	
-	@Getter private String sender;
-	@Getter private Message message;
-	@Getter private Channel channel;
-	@Getter private User user;
-	
-	public MessageEvent(TwitchTMI TMI, RawData rawData, Channel channel, String sender, Message.MessageType type) {
-		this(TMI, rawData, new Message(TMI, rawData, channel, sender, type));
+	public MessageEvent(TwitchTMI TMI, User sender, Message message, Type type) { this(TMI, sender, message, type, false); }
+	public MessageEvent(TwitchTMI TMI, User sender, Message message, Type type, boolean self) {
+		this.TMI = TMI;
+		this.sender = sender;
+		this.message = message;
+		this.type = type;
+		this.self = self;
 	}
 	
-	public MessageEvent(TwitchTMI TMI, RawData rawData, Message message) {
-		this.TMI = TMI;
-		this.rawData = rawData;
-		
-		this.sender = message.getSender();
-		this.message = message;
-		this.channel = this.message.getChannel();
-		this.user = this.message.getUser();
+	public enum Type {
+		CHEER,
+		ACTION,
+		CHAT,
+		WHISPER
 	}
 }

@@ -1,8 +1,6 @@
 import tv.twitch.tmi.TwitchTMI;
 import tv.twitch.tmi.events.obj.*;
 import tv.twitch.tmi.events.EventListener;
-import tv.twitch.tmi.obj.Badge;
-import tv.twitch.tmi.obj.Emote;
 
 public class IRCTest {
 	public static void main(String[] args) {
@@ -13,55 +11,56 @@ public class IRCTest {
 		TwitchTMI TMI = new TwitchTMI();
 			TMI.setUsername(username);
 			TMI.setOAuth(oauth);
+			TMI.setAPI(System.getenv("CLIENT_ID"), System.getenv("CLIENT_SECRET"));
 			TMI.setVerbose(true);
 		TMI.connect();
 		
 		TMI.setEventListener(new EventListener() {
 			public void onConnect(ConnectEvent event) throws Exception {
+				System.out.println("Connected to "+ event.getIP() +":"+ event.getPort());
+				System.out.println("	Username: "+ event.getUsername());
+			}
+			
+			public void onReady() throws Exception {
 				TMI.getChannel(channel).join();
 			}
 			
-			public void onChannelJoin(ChannelJoinEvent event) throws Exception {
-				//TMI.sendMessage(channel, "/me test");
-				System.out.println("JOIN - "+ event.getUsername());
+			public void onChannelJoin(ChannelEvent event) {
+				if(event.isSelf()) {
+					System.out.println("Joined Channel: "+ event.getChannel().getName());
+					System.out.println("	Mod: "+ (event.getChannel().isMod()?"Yes":"No")); //This event.getChannel().isMod() is always false on join atm
+				}
 			}
 			
-			public void onChannelLeave(ChannelLeaveEvent event) throws Exception {
-				System.out.println("PART - "+ event.getUser());
-			}
-			
-			public void onSub(SubEvent event) throws Exception {
-				System.out.println("SUB - "+ event.getUser().getDisplayName());
-				System.out.println("	CHANNEL: "+ event.getChannel().getName());
-				System.out.println("	PLAN: "+ event.getPlan().toString());
-				System.out.println("	STREAK: "+ event.getStreak());
-				System.out.println("	RECIPIENT: "+ event.getRecipient());
-			}
-			
-			public void onHost(HostEvent event) throws Exception {
-				System.out.println("HOST - "+ event.getHoster().getName() +" is now hosting channel "+ event.getChannel().getName() +" for "+ event.getViewers() +" viewers!");
-			}
-			
-			public void onWhisper(MessageEvent event) throws Exception {
-				System.out.println("WHISPER - "+ event.getSender() +": "+ event.getMessage().getText());
-			}
-			
-			public void onAction(MessageEvent event) {
-				System.out.println("ACTION - "+ event.getSender() +": "+ event.getMessage().getText());
+			public void onChannelLeave(ChannelEvent event) {
+				if(event.isSelf())
+					System.out.println("Left Channel: "+ event.getChannel().getName());
 			}
 			
 			public void onMessage(MessageEvent event) {
-				System.out.println("MESSAGE - "+ event.getSender() +": "+ event.getMessage().getText());
-				System.out.println("	BADGES:");
-				for(Badge b : event.getMessage().getUser().getBadges())
-					System.out.println("		- "+ b.getType().toString() +" "+ b.getData());
-				System.out.println("	EMOTES:");
-				for(Emote e : event.getMessage().getEmotes())
-					System.out.println("		- "+ e.getID() +" "+ e.getURLAsString(Emote.Size.LARGE));
+				if(!event.getType().equals(MessageEvent.Type.WHISPER)) {
+					System.out.println("[#"+ event.getMessage().getChannel().getName() +"] "+ event.getSender().getDisplayName() + ": " + event.getMessage().getMessage());
+					System.out.println("	Message Type: " + event.getType().toString());
+					System.out.println("	BTTV Emotes: "+ event.getMessage().getBTTVEmotes().size());
+					System.out.println("	FFZ Emotes: "+ event.getMessage().getFFZEmotes().size());
+					System.out.println("	Total Emotes: "+ (event.getMessage().getEmotes().size() + event.getMessage().getBTTVEmotes().size() + event.getMessage().getFFZEmotes().size()));
+				}
 			}
 			
-			public void onCheer(CheerEvent event) {
-				System.out.println("CHEER x"+ event.getAmount() +" - "+ event.getSender() +": "+ event.getMessage().getText());
+			public void onWhisper(MessageEvent event) {
+				System.out.println("[#jtv] "+ event.getSender().getDisplayName() + ": " + event.getMessage().getMessage());
+				System.out.println("	Message Type: " + event.getType().toString());
+				System.out.println("	BTTV Emotes: "+ event.getMessage().getBTTVEmotes().size());
+				System.out.println("	FFZ Emotes: "+ event.getMessage().getFFZEmotes().size());
+				System.out.println("	Total Emotes: "+ (event.getMessage().getEmotes().size() + event.getMessage().getBTTVEmotes().size() + event.getMessage().getFFZEmotes().size()));
+			}
+			
+			public void onPing(PingEvent event) {
+				System.out.println("Received ping from "+ event.getIP() +":"+ event.getPort());
+			}
+			
+			public void onError(ErrorEvent event) {
+				System.out.println("An error occurred: "+ event.getType().toString());
 			}
 		});
 	}

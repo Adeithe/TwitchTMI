@@ -1,272 +1,198 @@
 package tv.twitch.tmi.obj;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
+import tv.twitch.api.Method;
+import tv.twitch.api.TwitchAPI;
 import tv.twitch.tmi.TwitchTMI;
-import tv.twitch.tmi.exception.ChannelJoinFailureException;
-import tv.twitch.tmi.exception.ChannelLeaveFailureException;
+import tv.twitch.tmi.Utils;
 import tv.twitch.tmi.exception.MessageSendFailureException;
+import tv.twitch.tmi.obj.extension.BetterTTV;
+import tv.twitch.tmi.obj.extension.FrankerFaceZ;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
+@Getter
 public class Channel {
 	private TwitchTMI TMI;
 	
-	@Getter private int ID;
-	@Getter private String name;
-	@Getter private List<String> mods;
-	@Getter private boolean connected;
-	@Getter private LocalDateTime lastUpdated;
+	private boolean connected;
 	
-	@Getter private boolean mod;
-	@Getter private boolean subscriber;
-	@Getter private boolean emoteOnly;
-	@Getter private boolean followersOnly;
-	@Getter private boolean R9KMode;
-	@Getter private boolean slowMode;
-	@Getter private boolean subMode;
+	private int id;
+	private String name;
 	
-	@Getter private int followersOnlyDuration;
-	@Getter private int slowModeDuration;
+	private List<BetterTTV.Emote> BTTVEmotes;
+	private List<FrankerFaceZ.Emote> FFZEmotes;
 	
-	public Channel(TwitchTMI TMI, String channel, boolean connected) {
+	private List<String> mods;
+	
+	public boolean ritualsEnabled;
+	public boolean emoteOnly;
+	public boolean R9KMode;
+	public boolean subMode;
+	
+	public int followerMode = -1;
+	public int slowMode = 0;
+	
+	public boolean clientSubscriber;
+	
+	public Channel(TwitchTMI TMI, String name) { this(TMI, name, new HashMap<String, String>()); }
+	public Channel(TwitchTMI TMI, String name, HashMap<String, String> data) {
 		this.TMI = TMI;
 		
-		this.ID = -1;
-		this.name = channel.toLowerCase();
+		this.name = name.toLowerCase().replaceFirst("#", "");
+		
+		this.BTTVEmotes = new ArrayList<BetterTTV.Emote>();
+		this.FFZEmotes = new ArrayList<FrankerFaceZ.Emote>();
+		
 		this.mods = new ArrayList<String>();
 		
-		this.mod = false;
-		this.subscriber = false;
-		this.emoteOnly = false;
-		this.followersOnly = false;
-		this.R9KMode = false;
-		this.slowMode = false;
-		this.subMode = false;
-		
-		this.followersOnlyDuration = -1;
-		this.slowModeDuration = -1;
-		
-		this.connected = connected;
+		boolean connected = false;
+		if(!data.isEmpty())
+			connected = true;
+		this.roomstate(data, connected);
 	}
 	
 	/**
-	 * Joins the provided Twitch Chat and prepares the client to send messages
-	 * This <b>MUST</b> be done after ConnectEvent has been fired
-	 *
-	 * @throws ChannelJoinFailureException
-	 */
-	public void join() throws ChannelJoinFailureException {
-		String channel = this.getName();
-		try {
-			if(!channel.startsWith("#"))
-				channel = "#" + channel;
-			if(!this.TMI.isConnected() || this.TMI.getChannel(this.getName()).isConnected())
-				throw new Exception("Unable to join channel!");
-			this.TMI.sendRawData("JOIN " + channel);
-		} catch(Exception e) {
-			throw new ChannelJoinFailureException("Something went wrong while joining the channel!");
-		}
-	}
-	
-	/**
-	 * Sends the provided message to the channel
-	 * Client <b>MUST</b> join the channel before sending messages
+	 * Sends a message to the channel if it is connected
 	 *
 	 * @param message
 	 * @throws MessageSendFailureException
 	 */
 	public void sendMessage(String message) throws MessageSendFailureException {
-		String channel = this.getName();
-		try {
-			if(!channel.startsWith("#"))
-				channel = "#" + channel;
-			if(!this.TMI.isConnected() || !this.isConnected())
-				throw new Exception("Unable to send message!");
-			this.TMI.sendRawData("PRIVMSG "+ channel +" :"+ message);
-		} catch(Exception e) {
-			throw new MessageSendFailureException("Something went wrong while sending your message!");
-		}
+		if(this.isConnected())
+			this.TMI.sendMessage(this.getName(), message);
 	}
 	
 	/**
-	 * Permanently bans the provided user from this channel
+	 * Joins the channel if not already connected
 	 *
-	 * @param username
-	 * @throws MessageSendFailureException
+	 * @throws Exception
 	 */
-	public void ban(String username) throws MessageSendFailureException {
-		this.sendMessage("/ban "+ username.toLowerCase());
+	public void join() throws Exception {
+		if(!this.isConnected())
+			this.TMI.sendRawData("JOIN #"+ this.getName());
 	}
 	
 	/**
-	 * Times the given user out for 1 second
+	 * Checks if the client user is a mod in this channel
 	 *
-	 * @param username
-	 * @throws MessageSendFailureException
+	 * @return
 	 */
-	public void purge(String username) throws MessageSendFailureException {
-		this.timeout(username, 1);
+	public boolean isMod() {
+		return this.isMod(this.TMI.getUsername());
 	}
 	
 	/**
-	 * Bans the provided user from talking in chat for a set period of time
-	 *
-	 * @param username
-	 * @param seconds
-	 * @throws MessageSendFailureException
-	 */
-	public void timeout(String username, int seconds) throws MessageSendFailureException {
-		this.timeout(username, seconds, null);
-	}
-	
-	/**
-	 * Bans the provided user from talking in chat for a set period of time
-	 *
-	 * @param username
-	 * @param seconds
-	 * @param reason
-	 * @throws MessageSendFailureException
-	 */
-	public void timeout(String username, int seconds, String reason) throws MessageSendFailureException {
-		if(reason == null)
-			reason = "";
-		this.sendMessage("/timeout "+ username +" "+ seconds +" "+ reason);
-	}
-	
-	/**
-	 * Unbans the the provided user from chat
-	 *
-	 * @param username
-	 * @throws MessageSendFailureException
-	 */
-	public void unban(String username) throws MessageSendFailureException {
-		this.sendMessage("/unban "+ username.toLowerCase());
-	}
-	
-	/**
-	 * Returns true if the given user is a moderator and is currently in chat
-	 * <b>NOTE:</b> This is not 100% reliable and may return misinformation!
+	 * Checks if the provided user is a mod in this channel
 	 *
 	 * @param username
 	 * @return
 	 */
 	public boolean isMod(String username) {
-		if(this.isConnected())
-			if(this.getMods().contains(username.toLowerCase()))
-				return true;
+		username = username.replaceAll(" ", "").toLowerCase();
+		if(this.getMods().contains(username))
+			return true;
 		return false;
 	}
 	
 	/**
-	 * Leaves the channel removing the ability to chat here until rejoined
+	 * Leaves the channel if connected
 	 *
-	 * @throws ChannelLeaveFailureException
+	 * @throws Exception
 	 */
-	public void leave() throws ChannelLeaveFailureException {
-		String channel = this.getName();
-		try {
-			if(!channel.startsWith("#"))
-				channel = "#" + channel;
-			if(!this.TMI.isConnected() || !this.isConnected())
-				throw new Exception("Unable to leave channel!");
-			this.TMI.sendRawData("PART " + channel);
-		} catch(Exception e) {
-			throw new ChannelLeaveFailureException("Something went wrong while leaving the channel!");
-		}
-	}
-	
-	public void update() throws MessageSendFailureException {
-		if(this.__shouldUpdate()) {
-			this.sendMessage("/mods");
-			this.__setLastUpdated(LocalDateTime.now());
-		}
+	public void leave() throws Exception {
+		if(this.isConnected())
+			this.TMI.sendRawData("PART #" + this.getName());
+		this.connected = false;
 	}
 	
 	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
+	 * Returns true if Slow Mode is enabled for this channel
+	 *
+	 * @return
 	 */
-	public void __setEmoteOnly(boolean isEmoteOnly) {
-		this.emoteOnly = isEmoteOnly;
-	}
+	public boolean isSlowMode() { return (this.slowMode > 0); }
 	
 	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
+	 * Returns true if Followers Only Mode is enabled for this channel
+	 *
+	 * @return
 	 */
-	public void __setFollowersOnly(boolean isFollowersOnly, int duration) {
-		if(duration > -1)
-			duration *= 60;
-		this.followersOnly = isFollowersOnly;
-		this.followersOnlyDuration = duration;
-	}
+	public boolean isFollowersOnly() { return (this.followerMode > -1); }
+	
+	@Deprecated
+	public boolean isFollowersOnlyMode() { return this.isFollowersOnly(); }
 	
 	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
+	 * !!! DO NOT USE !!!
+	 * This method is used internally
+	 *
+	 * @param data
 	 */
-	public void __setR9KMode(boolean isR9KMode) {
-		this.R9KMode = isR9KMode;
-	}
-	
-	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
-	 */
-	public void __setSlowMode(boolean isSlowMode, int duration) {
-		this.slowMode = isSlowMode;
-		this.slowModeDuration = duration;
-	}
-	
-	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
-	 */
-	public void __setSubOnly(boolean isSubMode) {
-		this.subMode = isSubMode;
-	}
-	
-	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
-	 */
-	public void __setRoomID(int roomID) { this.ID = roomID; }
-	
-	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
-	 */
-	public void __setMod(boolean mod) { this.mod = mod; }
-	
-	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
-	 */
-	public void __setSubscriber(boolean subscriber) { this.subscriber = subscriber; }
-	
-	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
-	 */
-	public void __setLastUpdated(LocalDateTime lastUpdated) { this.lastUpdated = lastUpdated; }
-	
-	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
-	 */
-	public boolean __shouldUpdate() {
-		if(this.lastUpdated == null)
-			return true;
+	public void roomstate(HashMap<String, String> data, boolean connected) {
+		this.connected = connected;
 		
-		Date nextUpdate = Date.from(this.lastUpdated.plusSeconds(60).atOffset(ZoneOffset.UTC).toInstant());
-		Date now = Date.from(LocalDateTime.now().atOffset(ZoneOffset.UTC).toInstant());
+		if(data.isEmpty())
+			return;
 		
-		if(nextUpdate.getTime() <= now.getTime())
-			return true;
-		return false;
+		if(data.containsKey("room-id"))
+			this.id = Integer.parseInt(data.get("room-id"));
+		
+		if(data.containsKey("rituals"))
+			if(!data.get("rituals").equals("0"))
+				this.ritualsEnabled = true;
+		
+		if(data.containsKey("emote-only"))
+			if(!data.get("emote-only").equals("0"))
+				this.emoteOnly = true;
+		
+		if(data.containsKey("r9k"))
+			if(!data.get("r9k").equals("0"))
+				this.R9KMode = true;
+		
+		if(data.containsKey("subs-only"))
+			if(!data.get("subs-only").equals("0"))
+				this.subMode = true;
+		
+		if(data.containsKey("followers-only"))
+			this.followerMode = Integer.parseInt(data.get("followers-only"));
+		
+		if(data.containsKey("slow"))
+			this.slowMode = Integer.parseInt(data.get("slow"));
+	}
+	
+	/**
+	 * !!! DO NOT USE !!!
+	 * This method is used internally
+	 */
+	public void update() throws MessageSendFailureException, IOException {
+		this.sendMessage("/mods");
+		
+		this.getBTTVEmotes().clear();
+		BetterTTV bttv = Utils.GSON.fromJson(Utils.CallAPI(Method.GET, TwitchTMI.BTTV_BASE_URL +"channels/"+ getName().toLowerCase()), BetterTTV.class);
+		for(BetterTTV.Emote emote : bttv.getEmotes()) {
+			this.getBTTVEmotes().add(emote);
+			if(this.getTMI().isVerbose())
+				System.out.println("[BetterTTV] Registered emote "+ emote.getCode() +" for channel "+ this.getName().toLowerCase() +"!");
+		}
+		
+		this.getFFZEmotes().clear();
+		FrankerFaceZ ffz = Utils.GSON.fromJson(Utils.CallAPI(Method.GET, TwitchTMI.FFZ_BASE_URL +"room/"+ getName().toLowerCase()), FrankerFaceZ.class);
+		for(int key : ffz.getSets().keySet()) {
+			FrankerFaceZ.Set set = ffz.getSets().get(key);
+			for(FrankerFaceZ.Emote emote : set.getEmotes()) {
+				this.getFFZEmotes().add(emote);
+				if(this.getTMI().isVerbose())
+					System.out.println("[FrankerFaceZ] Registered emote "+ emote.getName() +" for channel "+ this.getName().toLowerCase() +"!");
+			}
+		}
 	}
 }

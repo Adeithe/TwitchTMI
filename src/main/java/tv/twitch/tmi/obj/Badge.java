@@ -2,9 +2,10 @@ package tv.twitch.tmi.obj;
 
 import lombok.Getter;
 
+@Getter
 public class Badge {
-	@Getter private Type type;
-	@Getter private int data;
+	private Type type;
+	private int data;
 	
 	public Badge(Type type, int data) {
 		this.type = type;

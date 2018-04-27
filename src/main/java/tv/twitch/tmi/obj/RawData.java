@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Getter
 public class RawData {
-	@Getter public String data;
-	@Getter public String prefix;
-	@Getter public String command;
-	@Getter public List<String> params;
-	@Getter public HashMap<String, String> tags;
+	public String data;
+	public String prefix;
+	public String command;
+	public List<String> params;
+	public HashMap<String, String> tags;
 	
 	public RawData(String rawData) {
 		this.data = rawData;

@@ -5,103 +5,56 @@ import tv.twitch.tmi.Parser;
 import tv.twitch.tmi.TwitchTMI;
 import tv.twitch.tmi.exception.MessageSendFailureException;
 
-import java.awt.Color;
-import java.util.ArrayList;
+import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
 
+@Getter
 public class User {
 	private TwitchTMI TMI;
 	
-	@Getter private int id;
-	@Getter private Channel channel;
-	@Getter private String displayName;
-	@Getter private String username;
-	@Getter private Color color;
-	@Getter private boolean broadcaster;
-	@Getter private boolean mod;
-	@Getter private boolean subscriber;
-	@Getter private boolean turbo;
-	@Getter private List<Badge> badges;
+	private int id;
+	private String username;
+	private String displayName;
 	
-	public User(TwitchTMI TMI, Channel channel, String username) {
+	private Color color = Color.BLACK;
+	private List<Badge> badges;
+	
+	public User(TwitchTMI TMI, String username) { this(TMI, username, new HashMap<String, String>()); }
+	public User(TwitchTMI TMI, String username, HashMap<String, String> data) {
 		this.TMI = TMI;
 		
-		this.id = -1;
-		this.channel = channel;
-		this.displayName = null;
 		this.username = username.toLowerCase();
-		this.color = Color.BLACK;
-		this.broadcaster = false;
-		this.mod = false;
-		this.subscriber = false;
-		this.turbo = false;
-		this.badges = new ArrayList<Badge>();
+		this.displayName = data.getOrDefault("display-name", this.username);
+		
+		if(data.containsKey("user-id"))
+			this.id = Integer.parseInt(data.get("user-id"));
+		if(data.containsKey("color"))
+			this.color = (data.get("color").length()>0)?Color.decode(data.get("color")):Color.BLACK;
+		
+		this.badges = Parser.badges(data.getOrDefault("badges", ""));
 	}
 	
-	/**
-	 * Mentions the user with the given message
-	 *
-	 * @param message
-	 * @throws MessageSendFailureException
-	 */
-	public void mention(String message) throws MessageSendFailureException {
-		this.getChannel().sendMessage("@"+ this.getDisplayName() +", "+ message);
+	public void mention(String channel, String message) throws MessageSendFailureException {
+		this.TMI.sendMessage(channel.toLowerCase(), message);
 	}
 	
-	/**
-	 * Sends a whisper to the user
-	 *
-	 * @param message
-	 */
 	public void sendWhisper(String message) throws MessageSendFailureException {
 		this.TMI.sendWhisper(this.getUsername(), message);
 	}
 	
-	/**
-	 * Checks if the user has the provided badge in the current channel
-	 *
-	 * @param type
-	 * @return
-	 */
+	public boolean isAdmin() { return this.hasBadge(Badge.Type.ADMIN);	}
+	public boolean isStaff() { return (this.hasBadge(Badge.Type.ADMIN) || this.hasBadge(Badge.Type.STAFF)); }
+	public boolean isGlobalMod() { return this.hasBadge(Badge.Type.GLOBAL_MOD); }
+	public boolean isBroadcaster() { return this.hasBadge(Badge.Type.BROADCASTER); }
+	public boolean isMod() { return (this.hasBadge(Badge.Type.MODERATOR) || this.hasBadge(Badge.Type.BROADCASTER)); }
+	
+	public boolean isSubscriber() { return this.hasBadge(Badge.Type.SUBSCRIBER); }
+	
 	public boolean hasBadge(Badge.Type type) {
 		for(Badge badge : this.badges)
-			if(badge.equals(type))
+			if(badge.getType().equals(type))
 				return true;
 		return false;
-	}
-	
-	/**
-	 * <b>!!! DO NOT USE !!!</b>
-	 * This method is used internally and may cause issues if you call this method.
-	 */
-	public void setUserInfo(String name, String val) {
-		if(name.startsWith("@"))
-			name = name.replaceFirst("@", "");
-		switch(name.toUpperCase()) {
-			case "BADGES":
-				this.badges = Parser.badges(val);
-				this.broadcaster = this.hasBadge(Badge.Type.BROADCASTER);
-			break;
-			case "COLOR":
-				try {
-					this.color = Color.decode(val);
-				} catch(NumberFormatException e) { this.color = Color.BLACK; }
-			break;
-			case "DISPLAY-NAME":
-				this.displayName = val;
-			break;
-			case "MOD":
-				this.mod = Boolean.parseBoolean(val);
-			break;
-			case "SUBSCRIBER":
-				this.subscriber = Boolean.parseBoolean(val);
-			break;
-			case "TURBO":
-				this.turbo = Boolean.parseBoolean(val);
-			break;
-			case "USER-ID":
-				this.id = Integer.parseInt(val);
-			break;
-		}
 	}
 }
