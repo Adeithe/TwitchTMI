@@ -53,6 +53,27 @@ public class TwitchTMI {
 		this.globalFFZEmotes = new ArrayList<FrankerFaceZ.Emote>();
 	}
 	
+	/**
+	 * Creates an anonymous login to use when connected to IRC
+	 */
+	public void anonymous() {
+		int min = 10000;
+		this.username = "justinfan"+ (min + new Random().nextInt(99999 - min));
+		this.oAuth = "Kappa";
+	}
+	
+	/**
+	 * Returns true if the client is using an anonymous login
+	 *
+	 * @return
+	 */
+	public boolean isAnonymous() { return (this.username.toLowerCase().startsWith("justinfan") && !this.oAuth.toLowerCase().startsWith("oauth:")); }
+	
+	/**
+	 * Sets the OAuth token for login
+	 *
+	 * @param oAuth
+	 */
 	public void setOAuth(String oAuth) {
 		if(!oAuth.startsWith("oauth:"))
 			oAuth = "oauth:"+ oAuth;
@@ -306,9 +327,15 @@ public class TwitchTMI {
 						case "003":
 						case "004":
 						case "375":
-						case "376":
 						case "CAP":
 							break;
+							
+						case "376":
+							if(this.TMI.isAnonymous()) {
+								this.TMI.clientUser = new ClientUser(this.TMI, new User(this.TMI, this.TMI.getUsername()));
+								this.TMI.getEventListener().onReady();
+							}
+						break;
 						
 						case "372":
 							this.connected = true;

@@ -18,6 +18,7 @@ public class TwitchAPI {
 	
 	@Getter private String id;
 	@Getter private String secret;
+	@Getter private Authorization authorization;
 	@Getter private APIVersions versions;
 	@Getter private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	
@@ -27,7 +28,11 @@ public class TwitchAPI {
 		this.versions = new APIVersions(this);
 	}
 	
-	public String CallAPI(Method method, String url) throws IOException {
+	public void setAuthorization(Authorization.Type type, String token) { this.setAuthorization(new Authorization(type, token)); }
+	public void setAuthorization(Authorization authorization) { this.authorization = authorization; }
+	
+	public String CallAPI(Method method, String url) throws IOException { return CallAPI(method, url, null); }
+	public String CallAPI(Method method, String url, Authorization authorization) throws IOException {
 		url = BASE_URL + url;
 		
 		StringBuilder response = new StringBuilder();
@@ -37,6 +42,8 @@ public class TwitchAPI {
 			con.setRequestMethod(method.toString());
 			con.setRequestProperty("Client-ID", this.id);
 			con.setRequestProperty("User-Agent", USER_AGENT);
+			if(authorization != null)
+				con.setRequestProperty("Authorization", authorization.toString());
 		
 		int response_code = con.getResponseCode();
 		if(response_code != 200)

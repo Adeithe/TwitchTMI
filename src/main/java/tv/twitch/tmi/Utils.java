@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 
 public class Utils {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -57,5 +58,12 @@ public class Utils {
 		}
 		
 		return response.toString();
+	}
+	
+	public static int[] toIntArray(List<Integer> list) {
+		int[] ints = new int[list.size()];
+		for(int i = 0; i < list.size(); i++)
+			ints[i] = list.get(i);
+		return ints;
 	}
 }

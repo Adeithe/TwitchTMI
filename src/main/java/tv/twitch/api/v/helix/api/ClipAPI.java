@@ -6,6 +6,7 @@ import tv.twitch.api.v.helix.obj.ClipResponse;
 import tv.twitch.api.v.helix.obj.Pagination;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ClipAPI {
 	private TwitchAPI API;
@@ -14,49 +15,25 @@ public class ClipAPI {
 		this.API = API;
 	}
 	
-	public ClipResponse getClip(String id) throws IOException {
-		return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?id="+ id), ClipResponse.class);
+	public ClipResponse getClipByID(String id) throws IOException { return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?id="+ id), ClipResponse.class); }
+	public ClipResponse getClipsByID(List<String> ids) throws IOException, ArrayIndexOutOfBoundsException { return this.getClipsByID(ids.toArray(new String[0])); }
+	public ClipResponse getClipsByID(String... id) throws IOException, ArrayIndexOutOfBoundsException {
+		if(id.length > 100)
+			throw new ArrayIndexOutOfBoundsException("You can only request a max of 100 clips!");
+		StringBuilder ids = new StringBuilder();
+		for(String s : id) ids.append("id="+ s +"&");
+		return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?"+ ids.toString()), ClipResponse.class);
 	}
 	
-	public ClipResponse getClipsForBroadcaster(String broadcaster_id) throws IOException { return this.getClipsForBroadcaster(broadcaster_id, 20); }
-	public ClipResponse getClipsForBroadcaster(String broadcaster_id, int first) throws IOException {
-		if(first > 100)
-			first = 100;
-		return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?broadcaster_id="+ broadcaster_id +"&first="+ first), ClipResponse.class);
-	}
+	public ClipResponse getClipsByBroadcaster(int broadcaster_id) throws IOException { return this.getClipsByBroadcaster(broadcaster_id, 20); }
+	public ClipResponse getClipsByBroadcaster(int broadcaster_id, int first) throws IOException { return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?broadcaster_id="+ broadcaster_id +"&first="+ first), ClipResponse.class); }
 	
-	public ClipResponse getClipsForBroadcasterBefore(String broadcaster_id, Pagination pagination) throws IOException { return this.getClipsForBroadcasterBefore(broadcaster_id, 20, pagination); }
-	public ClipResponse getClipsForBroadcasterBefore(String broadcaster_id, int first, Pagination pagination) throws IOException {
-		if(first > 100)
-			first = 100;
-		return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?broadcaster_id="+ broadcaster_id +"&first="+ first +"&before="+ pagination.getCursor()), ClipResponse.class);
-	}
+	public ClipResponse getClipsByBroadcasterAfter(int broadcaster_id, Pagination pagination) throws IOException { return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?broadcaster_id="+ broadcaster_id +"&after="+ pagination.getCursor()), ClipResponse.class); }
+	public ClipResponse getClipsByBroadcasterBefore(int broadcaster_id, Pagination pagination) throws IOException { return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?broadcaster_id="+ broadcaster_id +"&before="+ pagination.getCursor()), ClipResponse.class); }
 	
-	public ClipResponse getClipsForBroadcasterAfter(String broadcaster_id, Pagination pagination) throws IOException { return this.getClipsForBroadcasterAfter(broadcaster_id, 20, pagination); }
-	public ClipResponse getClipsForBroadcasterAfter(String broadcaster_id, int first, Pagination pagination) throws IOException {
-		if(first > 100)
-			first = 100;
-		return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?broadcaster_id="+ broadcaster_id +"&first="+ first +"&after="+ pagination.getCursor()), ClipResponse.class);
-	}
+	public ClipResponse getClipsByGame(int game_id) throws IOException { return this.getClipsByGame(game_id, 20); }
+	public ClipResponse getClipsByGame(int game_id, int first) throws IOException { return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?game_id="+ game_id +"&first="+ first), ClipResponse.class); }
 	
-	public ClipResponse getClipsForGame(String game_id) throws IOException { return this.getClipsForGame(game_id, 20); }
-	public ClipResponse getClipsForGame(String game_id, int count) throws IOException {
-		if(count > 100)
-			count = 100;
-		return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?game_id="+ game_id +"&first="+ count), ClipResponse.class);
-	}
-	
-	public ClipResponse getClipsForGameBefore(String game_id, Pagination pagination) throws IOException { return this.getClipsForGameBefore(game_id, 20, pagination); }
-	public ClipResponse getClipsForGameBefore(String game_id, int count, Pagination pagination) throws IOException {
-		if(count > 100)
-			count = 100;
-		return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?game_id="+ game_id +"&first="+ count +"&before="+ pagination.getCursor()), ClipResponse.class);
-	}
-	
-	public ClipResponse getClipsForGameAfter(String game_id, Pagination pagination) throws IOException { return this.getClipsForGameAfter(game_id, 20, pagination); }
-	public ClipResponse getClipsForGameAfter(String game_id, int count, Pagination pagination) throws IOException {
-		if(count > 100)
-			count = 100;
-		return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?game_id="+ game_id +"&first="+ count +"&after="+ pagination.getCursor()), ClipResponse.class);
-	}
+	public ClipResponse getClipsByGameAfter(int game_id, Pagination pagination) throws IOException { return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?game_id="+ game_id +"&after="+ pagination.getCursor()), ClipResponse.class); }
+	public ClipResponse getClipsByGameBefore(int game_id, Pagination pagination) throws IOException { return this.API.getGson().fromJson(this.API.CallAPI(Method.GET, "helix/clips?game_id="+ game_id +"&before="+ pagination.getCursor()), ClipResponse.class); }
 }
