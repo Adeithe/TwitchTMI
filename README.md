@@ -1,6 +1,8 @@
 # TwitchTMI [![](https://jitpack.io/v/Adeithe/TwitchTMI.svg?style=flat-square)](https://jitpack.io/#Adeithe/TwitchTMI)
 
-Implementation of TwitchIRC in Java 8
+SSL Implementation of the Twitch IRC and API Services in Java
+
+Supports BetterTTV and FrankerFaceZ
 
 ## Getting Started
 All examples of how to get started with TwitchTMI are available at [/src/test/java](https://github.com/Adeithe/TwitchTMI/tree/master/src/test/java)
