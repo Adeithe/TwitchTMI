@@ -1,4 +1,4 @@
-package tv.twitch.handle.impl.events;
+package tv.twitch.handle.impl.events.tmi.status;
 
 import lombok.Getter;
 import tv.twitch.events.Event;

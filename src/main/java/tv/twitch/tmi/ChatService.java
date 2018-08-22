@@ -1,14 +1,23 @@
 package tv.twitch.tmi;
 
 import lombok.Getter;
-import tv.twitch.handle.impl.events.ConnectEvent;
-import tv.twitch.handle.impl.obj.tmi.RawData;
+import tv.twitch.events.IListener;
+import tv.twitch.handle.impl.events.tmi.channel.ChannelJoinEvent;
+import tv.twitch.handle.impl.events.tmi.channel.ChannelLeaveEvent;
+import tv.twitch.handle.impl.events.tmi.status.ConnectEvent;
+import tv.twitch.handle.impl.events.tmi.PingEvent;
+import tv.twitch.handle.impl.events.tmi.raw.RawDataEvent;
+import tv.twitch.handle.impl.events.tmi.status.ReadyEvent;
+import tv.twitch.handle.impl.obj.tmi.Channel;
+import tv.twitch.handle.impl.obj.tmi.ClientUser;
 import tv.twitch.utils.Parser;
+import tv.twitch.utils.Utils;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
 
 public class ChatService extends Thread {
 	public static final String IP = "irc.chat.twitch.tv";
@@ -19,37 +28,46 @@ public class ChatService extends Thread {
 	private BufferedWriter Writer;
 	private BufferedReader Reader;
 	
-	private TwitchTMI TMI;
+	@Getter private TwitchTMI TMI;
+	@Getter private ClientUser clientUser;
+	@Getter private HashMap<String, Channel> connectedChannels = new HashMap<>();
 	
 	@Getter private boolean connected;
+	@Getter private boolean ready;
+	private boolean reconnect;
 	
 	ChatService(TwitchTMI TMI) {
 		this.TMI = TMI;
+		this.TMI.getClient().getEventDispatcher().registerListener(new ChatServiceEventListener(this));
 	}
 	
 	@Override
 	public void run() {
 		try {
+			this.reconnect = false;
 			if(this.connect()) {
 				this.sendRawData(
 					"CAP REQ :twitch.tv/membership",
 					"CAP REQ :twitch.tv/tags",
 					"CAP REQ :twitch.tv/commands",
 					
-					"PASS " + this.TMI.getClient().getOAuth(),
-					"NICK " + this.TMI.getClient().getUsername()
+					"PASS " + this.getTMI().getClient().getOAuth(),
+					"NICK " + this.getTMI().getClient().getUsername()
 				);
 				
 				String line = null;
 				while(this.isConnected() && ((line = this.Reader.readLine()) != null)) {
 					if(this.TMI.getClient().getSettings().getVerbose().getLevel() > 0)
 						System.out.println("> "+ line);
-					RawData rawData = Parser.msg(line);
+					this.TMI.getClient().getEventDispatcher().dispatch(new RawDataEvent(Parser.msg(line)));
 				}
 				
 				this.Socket.close();
 				this.Writer.close();
 				this.Reader.close();
+				
+				if(this.reconnect)
+					this.run();
 			}
 		} catch(IOException e) {
 			System.out.println("Failed to read line!");
@@ -76,12 +94,147 @@ public class ChatService extends Thread {
 			this.Writer = new BufferedWriter(new OutputStreamWriter(this.Socket.getOutputStream()));
 			this.Reader = new BufferedReader(new InputStreamReader(this.Socket.getInputStream()));
 			this.connected = true;
-			this.TMI.getClient().getEventDispatcher().dispatch(new ConnectEvent(IP, PORT));
 		} catch(IOException e) {
-			this.connected = false;
+			this.disconnect();
 		}
 		return this.connected;
 	}
 	
-	void disconnect() { this.connected = false; }
+	void disconnect() {
+		this.reconnect = false;
+		this.connected = false;
+		this.ready = false;
+	}
+	
+	void reconnect() {
+		this.reconnect = true;
+		this.connected = false;
+		this.ready = false;
+	}
+	
+	@Getter
+	private class ChatServiceEventListener implements IListener<RawDataEvent> {
+		private ChatService chatService;
+		
+		public void handle(RawDataEvent event) {
+			if(!Utils.isNull(event.getRawData())) {
+				String channel = (event.getRawData().getParams().size()>0)? event.getRawData().getParams().get(0).replaceFirst("#", "").toLowerCase() : null;
+				String msg = (event.getRawData().getParams().size()>1)? event.getRawData().getParams().get(1) : "";
+				String msgid = event.getRawData().getTags().getOrDefault("msg-id", "").toUpperCase();
+				
+				if(Utils.isNull(event.getRawData().getPrefix())) {
+					switch(event.getRawData().getCommand().toUpperCase()) {
+						case "PING":
+							try {
+								this.getChatService().sendRawData("PONG " + event.getRawData().getData().substring(5));
+								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new PingEvent());
+							} catch(IOException e) {
+								e.printStackTrace();
+							}
+						break;
+					}
+				} else if(event.getRawData().getPrefix().equalsIgnoreCase("tmi.twitch.tv")) {
+					switch(event.getRawData().getCommand().toUpperCase()) {
+						case "372":
+							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ConnectEvent(ChatService.IP, ChatService.PORT));
+						break;
+						
+						case "376":
+							if(this.getChatService().getTMI().isAnonymous()) {
+								this.getChatService().clientUser = new ClientUser(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername());
+								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent());
+							}
+						break;
+						
+						case "NOTICE":
+							switch(msgid) {
+								//TODO: SubOnly Mode, EmoteOnly Mode, etc.
+							}
+						break;
+						
+						case "USERNOTICE":
+							switch(msgid) {
+								//TODO: Sub, Resub, Bits, etc.
+							}
+						break;
+						
+						case "HOSTTARGET":
+							{
+								//TODO: Hosts
+							}
+						break;
+						
+						case "CLEARCHAT":
+							{
+								//TODO: Handle bans, timeouts, etc
+							}
+						break;
+						
+						case "RECONNECT":
+							this.getChatService().reconnect();
+						break;
+						
+						case "USERSTATE":
+							this.getChatService().getTMI().getChannel(channel).setUserState(new ClientUser.UserState(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername().toLowerCase(), this.getChatService().getTMI().getChannel(channel), event.getRawData().getTags()));
+						break;
+						
+						case "GLOBALUSERSTATE":
+							this.getChatService().clientUser = new ClientUser(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername(), event.getRawData().getTags());
+							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent());
+						break;
+						
+						case "ROOMSTATE":
+							{
+								boolean isConnected = this.getChatService().getTMI().getChannel(channel).isConnected();
+								this.getChatService().getConnectedChannels().put(channel, new Channel(this.getChatService().getTMI(), channel, event.getRawData().getTags(), true));
+								if(!isConnected)
+									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelJoinEvent(this.getChatService().getTMI().getChannel(channel), this.getChatService().getTMI().getClient().getUsername().toLowerCase(), true));
+							}
+						break;
+					}
+				} else if(event.getRawData().getPrefix().equalsIgnoreCase("jtv")) {
+					switch(event.getRawData().getCommand().toUpperCase()) {
+						case "+O":
+							break;
+						
+						case "-O":
+							break;
+					}
+				} else {
+					boolean isSelf = false;
+					String username = event.getRawData().getPrefix().split("!")[0].toLowerCase();
+					if(this.getChatService().getClientUser() != null && username.equalsIgnoreCase(this.getChatService().getClientUser().getUsername()))
+						isSelf = true;
+					switch(event.getRawData().getCommand().toUpperCase()) {
+						case "JOIN":
+							if(!isSelf)
+								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelJoinEvent(this.getChatService().getTMI().getChannel(channel),username, false));
+						break;
+						
+						case "PART":
+							if(isSelf && this.getChatService().getTMI().getChannel(channel).isConnected())
+								this.getChatService().getConnectedChannels().remove(channel);
+							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelLeaveEvent(this.getChatService().getTMI().getChannel(channel), username, isSelf));
+						break;
+						
+						case "WHISPER":
+							//TODO: Whispers
+						break;
+						
+						case "PRIVMSG":
+							if(username.equalsIgnoreCase("jtv")) {
+								//TODO: Handle host message
+							} else {
+								//TODO: Handle chat message
+							}
+						break;
+					}
+				}
+			}
+		}
+		
+		ChatServiceEventListener(ChatService chatService) {
+			this.chatService = chatService;
+		}
+	}
 }
