@@ -7,7 +7,9 @@ import tv.twitch.handle.impl.events.tmi.channel.ChannelLeaveEvent;
 import tv.twitch.handle.impl.events.tmi.status.ConnectEvent;
 import tv.twitch.handle.impl.events.tmi.PingEvent;
 import tv.twitch.handle.impl.events.tmi.raw.RawDataEvent;
+import tv.twitch.handle.impl.events.tmi.status.DisconnectEvent;
 import tv.twitch.handle.impl.events.tmi.status.ReadyEvent;
+import tv.twitch.handle.impl.events.tmi.status.ReconnectEvent;
 import tv.twitch.handle.impl.obj.tmi.Channel;
 import tv.twitch.handle.impl.obj.tmi.ClientUser;
 import tv.twitch.utils.Parser;
@@ -38,41 +40,11 @@ public class ChatService extends Thread {
 	
 	ChatService(TwitchTMI TMI) {
 		this.TMI = TMI;
-		this.TMI.getClient().getEventDispatcher().registerListener(new ChatServiceEventListener(this));
+		this.TMI.getClient().getEventDispatcher().registerListener(new ChatServiceRawDataEventListener(this));
 	}
 	
 	@Override
-	public void run() {
-		try {
-			this.reconnect = false;
-			if(this.connect()) {
-				this.sendRawData(
-					"CAP REQ :twitch.tv/membership",
-					"CAP REQ :twitch.tv/tags",
-					"CAP REQ :twitch.tv/commands",
-					
-					"PASS " + this.getTMI().getClient().getOAuth(),
-					"NICK " + this.getTMI().getClient().getUsername()
-				);
-				
-				String line = null;
-				while(this.isConnected() && ((line = this.Reader.readLine()) != null)) {
-					if(this.TMI.getClient().getSettings().getVerbose().getLevel() > 0)
-						System.out.println("> "+ line);
-					this.TMI.getClient().getEventDispatcher().dispatch(new RawDataEvent(Parser.msg(line)));
-				}
-				
-				this.Socket.close();
-				this.Writer.close();
-				this.Reader.close();
-				
-				if(this.reconnect)
-					this.run();
-			}
-		} catch(IOException e) {
-			System.out.println("Failed to read line!");
-		}
-	}
+	public void run() { this.onStart(); }
 	
 	void sendRawData(String... data) throws IOException {
 		if(this.connected) {
@@ -112,8 +84,46 @@ public class ChatService extends Thread {
 		this.ready = false;
 	}
 	
+	private void onStart() {
+		try {
+			this.reconnect = false;
+			if(this.connect()) {
+				this.sendRawData(
+						"CAP REQ :twitch.tv/membership",
+						"CAP REQ :twitch.tv/tags",
+						"CAP REQ :twitch.tv/commands",
+						
+						"PASS " + this.getTMI().getClient().getOAuth(),
+						"NICK " + this.getTMI().getClient().getUsername()
+				);
+				
+				String line = null;
+				while(this.isConnected() && ((line = this.Reader.readLine()) != null)) {
+					if(this.TMI.getClient().getSettings().getVerbose().getLevel() > 0)
+						System.out.println("> "+ line);
+					this.TMI.getClient().getEventDispatcher().dispatch(new RawDataEvent(this.getTMI(), Parser.msg(line)));
+				}
+				
+				this.Socket.close();
+				this.Writer.close();
+				this.Reader.close();
+				this.onClose();
+			}
+		} catch(IOException e) {
+			System.out.println("Failed to read line!");
+		}
+	}
+	
+	private void onClose() {
+		this.getTMI().getClient().getEventDispatcher().dispatch(new DisconnectEvent(this.getTMI(), this.reconnect));
+		if(this.reconnect) {
+			this.getTMI().getClient().getEventDispatcher().dispatch(new ReconnectEvent(this.getTMI()));
+			this.onStart();
+		}
+	}
+	
 	@Getter
-	private class ChatServiceEventListener implements IListener<RawDataEvent> {
+	protected class ChatServiceRawDataEventListener implements IListener<RawDataEvent> {
 		private ChatService chatService;
 		
 		public void handle(RawDataEvent event) {
@@ -127,7 +137,7 @@ public class ChatService extends Thread {
 						case "PING":
 							try {
 								this.getChatService().sendRawData("PONG " + event.getRawData().getData().substring(5));
-								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new PingEvent());
+								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new PingEvent(this.getChatService().getTMI()));
 							} catch(IOException e) {
 								e.printStackTrace();
 							}
@@ -136,13 +146,13 @@ public class ChatService extends Thread {
 				} else if(event.getRawData().getPrefix().equalsIgnoreCase("tmi.twitch.tv")) {
 					switch(event.getRawData().getCommand().toUpperCase()) {
 						case "372":
-							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ConnectEvent(ChatService.IP, ChatService.PORT));
+							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ConnectEvent(this.getChatService().getTMI(), ChatService.IP, ChatService.PORT));
 						break;
 						
 						case "376":
 							if(this.getChatService().getTMI().isAnonymous()) {
 								this.getChatService().clientUser = new ClientUser(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername());
-								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent());
+								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent(this.getChatService().getTMI()));
 							}
 						break;
 						
@@ -180,7 +190,7 @@ public class ChatService extends Thread {
 						
 						case "GLOBALUSERSTATE":
 							this.getChatService().clientUser = new ClientUser(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername(), event.getRawData().getTags());
-							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent());
+							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent(this.getChatService().getTMI()));
 						break;
 						
 						case "ROOMSTATE":
@@ -188,7 +198,7 @@ public class ChatService extends Thread {
 								boolean isConnected = this.getChatService().getTMI().getChannel(channel).isConnected();
 								this.getChatService().getConnectedChannels().put(channel, new Channel(this.getChatService().getTMI(), channel, event.getRawData().getTags(), true));
 								if(!isConnected)
-									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelJoinEvent(this.getChatService().getTMI().getChannel(channel), this.getChatService().getTMI().getClient().getUsername().toLowerCase(), true));
+									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelJoinEvent(this.getChatService().getTMI(), this.getChatService().getTMI().getChannel(channel), this.getChatService().getTMI().getClient().getUsername().toLowerCase(), true));
 							}
 						break;
 					}
@@ -208,13 +218,13 @@ public class ChatService extends Thread {
 					switch(event.getRawData().getCommand().toUpperCase()) {
 						case "JOIN":
 							if(!isSelf)
-								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelJoinEvent(this.getChatService().getTMI().getChannel(channel),username, false));
+								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelJoinEvent(this.getChatService().getTMI(), this.getChatService().getTMI().getChannel(channel),username, false));
 						break;
 						
 						case "PART":
 							if(isSelf && this.getChatService().getTMI().getChannel(channel).isConnected())
 								this.getChatService().getConnectedChannels().remove(channel);
-							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelLeaveEvent(this.getChatService().getTMI().getChannel(channel), username, isSelf));
+							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChannelLeaveEvent(this.getChatService().getTMI(), this.getChatService().getTMI().getChannel(channel), username, isSelf));
 						break;
 						
 						case "WHISPER":
@@ -233,8 +243,6 @@ public class ChatService extends Thread {
 			}
 		}
 		
-		ChatServiceEventListener(ChatService chatService) {
-			this.chatService = chatService;
-		}
+		ChatServiceRawDataEventListener(ChatService chatService) { this.chatService = chatService; }
 	}
 }

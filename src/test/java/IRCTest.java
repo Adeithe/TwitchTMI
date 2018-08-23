@@ -12,8 +12,8 @@ public class IRCTest {
 		ClientBuilder Builder = new ClientBuilder();
 		Builder.withClientID(System.getenv("CLIENT_ID"));
 		Builder.withClientSecret(System.getenv("CLIENT_SECRET"));
-		Builder.withUsername(System.getenv("TWITCH_USERNAME"));
-		Builder.withOAuth(System.getenv("TWITCH_OAUTH"));
+		Builder.withUsername(System.getenv("TWITCH_USERNAME2"));
+		Builder.withOAuth(System.getenv("TWITCH_OAUTH2"));
 		Builder.setVerbose(ClientSettings.VerboseLevel.ALL);
 		
 		TwitchClient Client = Builder.build();

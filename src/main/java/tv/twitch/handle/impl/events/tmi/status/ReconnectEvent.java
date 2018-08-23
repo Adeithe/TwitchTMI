@@ -5,10 +5,10 @@ import tv.twitch.events.Event;
 import tv.twitch.tmi.TwitchTMI;
 
 @Getter
-public class ReadyEvent extends Event {
+public class ReconnectEvent extends Event {
 	private TwitchTMI TMI;
 	
-	public ReadyEvent(TwitchTMI TMI) {
+	public ReconnectEvent(TwitchTMI TMI) {
 		this.TMI = TMI;
 	}
 }
