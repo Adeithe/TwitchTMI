@@ -2,6 +2,9 @@ package tv.twitch.tmi;
 
 import lombok.Getter;
 import tv.twitch.TwitchClient;
+import tv.twitch.events.IListener;
+import tv.twitch.handle.impl.events.tmi.status.AuthenticationEvent;
+import tv.twitch.handle.impl.events.tmi.status.DisconnectEvent;
 import tv.twitch.handle.impl.obj.tmi.Channel;
 import tv.twitch.handle.impl.obj.tmi.ClientUser;
 

@@ -4,12 +4,8 @@ import lombok.Getter;
 import tv.twitch.events.IListener;
 import tv.twitch.handle.impl.events.tmi.channel.ChannelJoinEvent;
 import tv.twitch.handle.impl.events.tmi.channel.ChannelLeaveEvent;
-import tv.twitch.handle.impl.events.tmi.status.ConnectEvent;
-import tv.twitch.handle.impl.events.tmi.PingEvent;
+import tv.twitch.handle.impl.events.tmi.status.*;
 import tv.twitch.handle.impl.events.tmi.raw.RawDataEvent;
-import tv.twitch.handle.impl.events.tmi.status.DisconnectEvent;
-import tv.twitch.handle.impl.events.tmi.status.ReadyEvent;
-import tv.twitch.handle.impl.events.tmi.status.ReconnectEvent;
 import tv.twitch.handle.impl.obj.tmi.Channel;
 import tv.twitch.handle.impl.obj.tmi.ClientUser;
 import tv.twitch.utils.Parser;
@@ -40,6 +36,7 @@ public class ChatService extends Thread {
 	
 	ChatService(TwitchTMI TMI) {
 		this.TMI = TMI;
+		
 		this.TMI.getClient().getEventDispatcher().registerListener(new ChatServiceRawDataEventListener(this));
 	}
 	
@@ -152,7 +149,10 @@ public class ChatService extends Thread {
 						case "376":
 							if(this.getChatService().getTMI().isAnonymous()) {
 								this.getChatService().clientUser = new ClientUser(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername());
-								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent(this.getChatService().getTMI()));
+								if(!this.getChatService().isReady()) {
+									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent(this.getChatService().getTMI()));
+									this.getChatService().ready = true;
+								}
 							}
 						break;
 						
@@ -190,7 +190,11 @@ public class ChatService extends Thread {
 						
 						case "GLOBALUSERSTATE":
 							this.getChatService().clientUser = new ClientUser(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername(), event.getRawData().getTags());
-							this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent(this.getChatService().getTMI()));
+							if(!this.getChatService().isReady()) {
+								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent(this.getChatService().getTMI()));
+								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new AuthenticationEvent(this.getChatService().getTMI()));
+								this.getChatService().ready = true;
+							}
 						break;
 						
 						case "ROOMSTATE":
