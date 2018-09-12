@@ -16,7 +16,8 @@ public class Channel {
 	
 	private int ID;
 	private String name;
-	@Setter private ClientUser.UserState userState;
+	@Setter private User userState;
+	@Setter private List<String> emoteSets;
 	private boolean connected;
 	
 	private boolean emoteOnlyMode;
@@ -25,7 +26,6 @@ public class Channel {
 	private List<String> mods = new ArrayList<>();
 	
 	public Channel(TwitchTMI TMI, String name, boolean connected) { this(TMI, name, new HashMap<>(), connected); }
-	
 	public Channel(TwitchTMI TMI, String name, HashMap<String, String> tags, boolean connected) {
 		if(name.startsWith("#"))
 			name = name.substring(1);
@@ -48,10 +48,8 @@ public class Channel {
 	}
 	
 	/**
-	 * Returns true if the username provided is a mod for this channel
-	 *
 	 * @param username
-	 * @return
+	 * @return If the username provided is a mod for this channel.
 	 */
 	public boolean isMod(String username) { return this.getMods().contains(username.toLowerCase()); }
 	
@@ -59,17 +57,23 @@ public class Channel {
 	 * Sends a message to the channel if connected.
 	 *
 	 * @param message
-	 * @return Returns true if message was sent.
+	 * @return If message was sent.
 	 */
-	public boolean sendMessage(String message) {
-		if(!this.isConnected())
-			return false;
-		try {
-			this.getTMI().sendRawData("PRIVMSG #" + this.getName() +" :"+ message);
-			return true;
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+	public boolean sendMessage(String message) { return this.sendMessage(message, false); }
+	
+	/**
+	 * Sends a message to the channel if connected.
+	 *
+	 * @param message
+	 * @param silent
+	 * @return If message was sent.
+	 */
+	public boolean sendMessage(String message, boolean silent) {
+		if(this.isConnected() && !this.getTMI().isAnonymous())
+			try {
+				this.getTMI().sendRawData("PRIVMSG #" + this.getName() +" :"+ message);
+				return true;
+			} catch(IOException e) {}
 		return false;
 	}
 	

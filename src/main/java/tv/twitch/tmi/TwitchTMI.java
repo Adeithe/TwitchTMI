@@ -2,11 +2,8 @@ package tv.twitch.tmi;
 
 import lombok.Getter;
 import tv.twitch.TwitchClient;
-import tv.twitch.events.IListener;
-import tv.twitch.handle.impl.events.tmi.status.AuthenticationEvent;
-import tv.twitch.handle.impl.events.tmi.status.DisconnectEvent;
 import tv.twitch.handle.impl.obj.tmi.Channel;
-import tv.twitch.handle.impl.obj.tmi.ClientUser;
+import tv.twitch.handle.impl.obj.tmi.User;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,8 +31,6 @@ public class TwitchTMI {
 	}
 	
 	/**
-	 * Gets the {@link Channel} object.
-	 *
 	 * @param name
 	 * @return The {@link Channel} object.
 	 */
@@ -59,9 +54,9 @@ public class TwitchTMI {
 	}
 	
 	/**
-	 * @return The current {@link ClientUser} object.
+	 * @return The current {@link User} object.
 	 */
-	public ClientUser getClientUser() {
+	public User getClientUser() {
 		if(this.ChatService == null || this.ChatService.getClientUser() == null)
 			return null;
 		return this.ChatService.getClientUser();
@@ -84,6 +79,9 @@ public class TwitchTMI {
 			this.ChatService.start();
 	}
 	
+	/**
+	 * Reconnects to the {@link ChatService}.
+	 */
 	public void reconnect() {
 		if(this.ChatService == null) {
 			this.login();

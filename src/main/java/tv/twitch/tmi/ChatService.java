@@ -4,10 +4,15 @@ import lombok.Getter;
 import tv.twitch.events.IListener;
 import tv.twitch.handle.impl.events.tmi.channel.ChannelJoinEvent;
 import tv.twitch.handle.impl.events.tmi.channel.ChannelLeaveEvent;
+import tv.twitch.handle.impl.events.tmi.channel.message.ActionEvent;
+import tv.twitch.handle.impl.events.tmi.channel.message.ChatEvent;
+import tv.twitch.handle.impl.events.tmi.channel.message.CheerEvent;
+import tv.twitch.handle.impl.events.tmi.channel.message.MessageEvent;
 import tv.twitch.handle.impl.events.tmi.status.*;
 import tv.twitch.handle.impl.events.tmi.raw.RawDataEvent;
 import tv.twitch.handle.impl.obj.tmi.Channel;
-import tv.twitch.handle.impl.obj.tmi.ClientUser;
+import tv.twitch.handle.impl.obj.tmi.Message;
+import tv.twitch.handle.impl.obj.tmi.User;
 import tv.twitch.utils.Parser;
 import tv.twitch.utils.Utils;
 
@@ -15,6 +20,7 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class ChatService extends Thread {
@@ -27,7 +33,7 @@ public class ChatService extends Thread {
 	private BufferedReader Reader;
 	
 	@Getter private TwitchTMI TMI;
-	@Getter private ClientUser clientUser;
+	@Getter private User clientUser;
 	@Getter private HashMap<String, Channel> connectedChannels = new HashMap<>();
 	
 	@Getter private boolean connected;
@@ -148,7 +154,7 @@ public class ChatService extends Thread {
 						
 						case "376":
 							if(this.getChatService().getTMI().isAnonymous()) {
-								this.getChatService().clientUser = new ClientUser(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername());
+								this.getChatService().clientUser = new User(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername().toLowerCase(), event.getRawData().getTags());
 								if(!this.getChatService().isReady()) {
 									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent(this.getChatService().getTMI()));
 									this.getChatService().ready = true;
@@ -185,11 +191,16 @@ public class ChatService extends Thread {
 						break;
 						
 						case "USERSTATE":
-							this.getChatService().getTMI().getChannel(channel).setUserState(new ClientUser.UserState(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername().toLowerCase(), this.getChatService().getTMI().getChannel(channel), event.getRawData().getTags()));
+							{
+								this.getChatService().getTMI().getChannel(channel).setUserState(new User(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername().toLowerCase(), event.getRawData().getTags()));
+								
+								if(!event.getRawData().getTags().getOrDefault("emote-sets", "").isEmpty())
+									this.getChatService().getTMI().getChannel(channel).setEmoteSets(Arrays.asList(event.getRawData().getTags().get("emote-sets").split(",")));
+							}
 						break;
 						
 						case "GLOBALUSERSTATE":
-							this.getChatService().clientUser = new ClientUser(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername(), event.getRawData().getTags());
+							this.getChatService().clientUser = new User(this.getChatService().getTMI(), this.getChatService().getTMI().getClient().getUsername().toLowerCase(), event.getRawData().getTags());
 							if(!this.getChatService().isReady()) {
 								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ReadyEvent(this.getChatService().getTMI()));
 								this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new AuthenticationEvent(this.getChatService().getTMI()));
@@ -239,7 +250,30 @@ public class ChatService extends Thread {
 							if(username.equalsIgnoreCase("jtv")) {
 								//TODO: Handle host message
 							} else {
-								//TODO: Handle chat message
+								Channel c = this.getChatService().getTMI().getChannel(channel);
+								User sender = new User(this.getChatService().getTMI(), username.toLowerCase(), event.getRawData().getTags());
+								
+								Message.Type type = Message.Type.CHAT;
+								Message message = null;
+								if(msg.matches("^\\u0001ACTION ([^\\u0001]+)\\u0001$")) {
+									type = Message.Type.ACTION;
+									message = new Message(this.getChatService().getTMI(), c, sender, msg, type, event.getRawData().getTags());
+									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ActionEvent(this.getChatService().getTMI(), c, sender, message, false));
+								}
+								
+								if(!event.getRawData().getTags().getOrDefault("bits", "").isEmpty()) {
+									type = Message.Type.CHEER;
+									message = new Message(this.getChatService().getTMI(), c, sender, msg, type, event.getRawData().getTags());
+									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new CheerEvent(this.getChatService().getTMI(), c, sender, message, Integer.parseInt(event.getRawData().getTags().get("bits")), false));
+								}
+								
+								if(type.equals(Message.Type.CHAT)) {
+									message = new Message(this.getChatService().getTMI(), c, sender, msg, type, event.getRawData().getTags());
+									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new ChatEvent(this.getChatService().getTMI(), c, sender, message, false));
+								}
+								
+								if(message != null)
+									this.getChatService().getTMI().getClient().getEventDispatcher().dispatch(new MessageEvent(this.getChatService().getTMI(), c, sender, message, false));
 							}
 						break;
 					}
