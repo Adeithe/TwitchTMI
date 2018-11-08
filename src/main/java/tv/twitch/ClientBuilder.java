@@ -1,6 +1,8 @@
 package tv.twitch;
 
 import java.util.Random;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.TimeUnit;
 
 public class ClientBuilder {
 	private String id;
@@ -72,6 +74,63 @@ public class ClientBuilder {
 	 */
 	public ClientBuilder setVerbose(ClientSettings.VerboseLevel verbose) {
 		this.settings.verbose = verbose;
+		return this;
+	}
+	
+	/**
+	 * Sets a {@link RejectedExecutionHandler} to be used for event handling.
+	 *
+	 * @param piggyBack
+	 * @return
+	 */
+	public ClientBuilder withPiggyBack(RejectedExecutionHandler piggyBack) {
+		this.settings.piggyback = piggyBack;
+		return this;
+	}
+	
+	/**
+	 * Sets a new minimum pool size for event handling.
+	 *
+	 * @param minimumPoolSize
+	 * @return
+	 */
+	public ClientBuilder setMinimumPoolSize(int minimumPoolSize) {
+		this.settings.minimumPoolSize = minimumPoolSize;
+		return this;
+	}
+	
+	/**
+	 * Sets a new maximum pool size for event handling.
+	 *
+	 * @param maximumPoolSize
+	 * @return
+	 */
+	public ClientBuilder setMaximumPoolSize(int maximumPoolSize) {
+		this.settings.maximumPoolSize = maximumPoolSize;
+		return this;
+	}
+	
+	/**
+	 * Sets a new thread timeout for event handling.
+	 *
+	 * @param threadTimeout
+	 * @param threadTimeoutUnit
+	 * @return
+	 */
+	public ClientBuilder setThreadTimeout(long threadTimeout, TimeUnit threadTimeoutUnit) {
+		this.settings.threadTimeout = threadTimeout;
+		this.settings.threadTimeoutUnit = threadTimeoutUnit;
+		return this;
+	}
+	
+	/**
+	 * Sets a new overflow for event handling.
+	 *
+	 * @param overflow
+	 * @return
+	 */
+	public ClientBuilder setOverflow(int overflow) {
+		this.settings.overflow = overflow;
 		return this;
 	}
 	
