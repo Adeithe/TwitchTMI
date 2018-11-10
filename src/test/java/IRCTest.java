@@ -13,17 +13,17 @@ import java.util.List;
 public class IRCTest {
 	public static void main(String[] args) throws Exception {
 		ClientBuilder Builder = new ClientBuilder();
-		Builder.withClientID(System.getenv("CLIENT_ID"));
-		Builder.withClientSecret(System.getenv("CLIENT_SECRET"));
-		Builder.withUsername(System.getenv("TWITCH_USERNAME2"));
-		Builder.withOAuth(System.getenv("TWITCH_OAUTH2"));
-		Builder.setVerbose(ClientSettings.VerboseLevel.INCOMING);
+				Builder.withClientID(System.getenv("CLIENT_ID"));
+				Builder.withClientSecret(System.getenv("CLIENT_SECRET"));
+				Builder.withUsername(System.getenv("TWITCH_USERNAME2"));
+				Builder.withOAuth(System.getenv("TWITCH_OAUTH2"));
+				Builder.setVerbose(ClientSettings.VerboseLevel.INCOMING);
 		
 		TwitchClient Client = Builder.build();
-		Client.getEventDispatcher().registerListener(new ReadyEventListener());
-		Client.getEventDispatcher().registerListener(new ChannelJoinEventListener());
-		Client.getEventDispatcher().registerListener(new MessageEventListener());
-		Client.getTMI().login();
+				Client.getEventDispatcher().registerListener(new ReadyEventListener());
+				Client.getEventDispatcher().registerListener(new ChannelJoinEventListener());
+				Client.getEventDispatcher().registerListener(new MessageEventListener());
+				Client.getTMI().login();
 	}
 	
 	public static class ReadyEventListener implements IListener<ReadyEvent> {

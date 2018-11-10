@@ -1,6 +1,7 @@
 package tv.twitch;
 
 import lombok.Getter;
+import tv.twitch.api.TwitchAPI;
 import tv.twitch.events.EventDispatcher;
 import tv.twitch.tmi.TwitchTMI;
 
@@ -31,4 +32,19 @@ public class TwitchClient {
 		
 		this.TMI = new TwitchTMI(this);
 	}
+	
+	/**
+	 * Returns an instance of {@link TwitchAPI} that does not use an OAuth Token
+	 *
+	 * @return
+	 */
+	public TwitchAPI getAPI() { return this.getAPI(null); }
+	
+	/**
+	 * Returns an instance of {@link TwitchAPI} using the given OAuth Token
+	 *
+	 * @param bearerToken
+	 * @return
+	 */
+	public TwitchAPI getAPI(String bearerToken) { return new TwitchAPI(this, bearerToken); }
 }
