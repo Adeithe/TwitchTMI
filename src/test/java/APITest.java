@@ -11,7 +11,7 @@ public class APITest {
 		TwitchClient Client = Builder.build();
 		
 		try {
-			System.out.println(Client.getAPI(System.getenv("TWITCH_OAUTH_TEST")).getVersions().helix.getUsers().getOwnUser());
+			System.out.println(Client.getAPI(System.getenv("TWITCH_OAUTH_TEST")).getVersions().helix.getUsers().getOwnUser().toString());
 		} catch(TwitchAPI.APIException e) {
 			System.out.println(e.toString());
 		} catch(Exception e) {

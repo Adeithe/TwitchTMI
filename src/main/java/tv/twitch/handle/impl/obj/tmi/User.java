@@ -44,4 +44,24 @@ public class User {
 				this.subscriber = tags.get("subscriber").equals("1");
 		}
 	}
+	
+	/**
+	 * Returns true if the user has a channel VIP badge.
+	 *
+	 * @return
+	 */
+	public boolean isVIP() { return hasBadge(Badge.Type.VIP); }
+	
+	/**
+	 * Returns true if the user has the badge type provided.
+	 *
+	 * @param type
+	 * @return
+	 */
+	public boolean hasBadge(Badge.Type type) {
+		for(Badge badge : badges)
+			if(badge.getType().equals(type))
+				return true;
+		return false;
+	}
 }
