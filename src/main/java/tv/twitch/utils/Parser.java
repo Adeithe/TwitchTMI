@@ -1,8 +1,8 @@
 package tv.twitch.utils;
 
-import tv.twitch.handle.impl.obj.tmi.Badge;
-import tv.twitch.handle.impl.obj.tmi.Emote;
-import tv.twitch.handle.impl.obj.tmi.RawData;
+import tv.twitch.tmi.handle.impl.obj.tmi.Badge;
+import tv.twitch.tmi.handle.impl.obj.tmi.Emote;
+import tv.twitch.tmi.handle.impl.obj.tmi.RawData;
 
 import java.util.ArrayList;
 import java.util.List;

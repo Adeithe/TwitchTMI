@@ -1,18 +1,18 @@
 package tv.twitch.tmi;
 
 import lombok.Getter;
-import tv.twitch.events.IListener;
-import tv.twitch.handle.impl.events.tmi.channel.ChannelJoinEvent;
-import tv.twitch.handle.impl.events.tmi.channel.ChannelLeaveEvent;
-import tv.twitch.handle.impl.events.tmi.channel.message.ActionEvent;
-import tv.twitch.handle.impl.events.tmi.channel.message.ChatEvent;
-import tv.twitch.handle.impl.events.tmi.channel.message.CheerEvent;
-import tv.twitch.handle.impl.events.tmi.channel.message.MessageEvent;
-import tv.twitch.handle.impl.events.tmi.status.*;
-import tv.twitch.handle.impl.events.tmi.raw.RawDataEvent;
-import tv.twitch.handle.impl.obj.tmi.Channel;
-import tv.twitch.handle.impl.obj.tmi.Message;
-import tv.twitch.handle.impl.obj.tmi.User;
+import tv.twitch.tmi.events.IListener;
+import tv.twitch.tmi.handle.impl.events.tmi.channel.ChannelJoinEvent;
+import tv.twitch.tmi.handle.impl.events.tmi.channel.ChannelLeaveEvent;
+import tv.twitch.tmi.handle.impl.events.tmi.channel.message.ActionEvent;
+import tv.twitch.tmi.handle.impl.events.tmi.channel.message.ChatEvent;
+import tv.twitch.tmi.handle.impl.events.tmi.channel.message.CheerEvent;
+import tv.twitch.tmi.handle.impl.events.tmi.channel.message.MessageEvent;
+import tv.twitch.tmi.handle.impl.events.tmi.status.*;
+import tv.twitch.tmi.handle.impl.events.tmi.raw.RawDataEvent;
+import tv.twitch.tmi.handle.impl.obj.tmi.Channel;
+import tv.twitch.tmi.handle.impl.obj.tmi.Message;
+import tv.twitch.tmi.handle.impl.obj.tmi.User;
 import tv.twitch.utils.Parser;
 import tv.twitch.utils.Utils;
 

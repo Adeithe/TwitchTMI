@@ -1,10 +1,9 @@
-import tv.twitch.ClientBuilder;
 import tv.twitch.TwitchClient;
 import tv.twitch.api.TwitchAPI;
 
 public class APITest {
 	public static void main(String[] args) throws Exception {
-		ClientBuilder Builder = new ClientBuilder();
+		TwitchClient.Builder Builder = new TwitchClient.Builder();
 				Builder.withClientID(System.getenv("CLIENT_ID"));
 				Builder.withClientSecret(System.getenv("CLIENT_SECRET"));
 		

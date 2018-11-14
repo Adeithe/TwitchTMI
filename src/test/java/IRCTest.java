@@ -1,18 +1,17 @@
-import tv.twitch.ClientBuilder;
 import tv.twitch.ClientSettings;
 import tv.twitch.TwitchClient;
-import tv.twitch.events.IListener;
-import tv.twitch.handle.impl.events.tmi.channel.ChannelJoinEvent;
-import tv.twitch.handle.impl.events.tmi.channel.message.MessageEvent;
-import tv.twitch.handle.impl.events.tmi.status.ReadyEvent;
-import tv.twitch.handle.impl.obj.tmi.Emote;
+import tv.twitch.tmi.events.IListener;
+import tv.twitch.tmi.handle.impl.events.tmi.channel.ChannelJoinEvent;
+import tv.twitch.tmi.handle.impl.events.tmi.channel.message.MessageEvent;
+import tv.twitch.tmi.handle.impl.events.tmi.status.ReadyEvent;
+import tv.twitch.tmi.handle.impl.obj.tmi.Emote;
 
 import java.io.IOException;
 import java.util.List;
 
 public class IRCTest {
 	public static void main(String[] args) throws Exception {
-		ClientBuilder Builder = new ClientBuilder();
+		TwitchClient.Builder Builder = new TwitchClient.Builder();
 				Builder.withClientID(System.getenv("CLIENT_ID"));
 				Builder.withClientSecret(System.getenv("CLIENT_SECRET"));
 				Builder.withUsername(System.getenv("TWITCH_USERNAME2"));

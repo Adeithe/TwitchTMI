@@ -2,7 +2,7 @@ package tv.twitch;
 
 import lombok.Getter;
 import tv.twitch.api.TwitchAPI;
-import tv.twitch.events.EventDispatcher;
+import tv.twitch.tmi.events.EventDispatcher;
 import tv.twitch.tmi.TwitchTMI;
 
 @Getter
@@ -47,4 +47,6 @@ public class TwitchClient {
 	 * @return
 	 */
 	public TwitchAPI getAPI(String bearerToken) { return new TwitchAPI(this, bearerToken); }
+	
+	public static class Builder extends ClientBuilder {}
 }

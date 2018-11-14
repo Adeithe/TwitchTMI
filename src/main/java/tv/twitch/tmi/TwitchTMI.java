@@ -2,8 +2,8 @@ package tv.twitch.tmi;
 
 import lombok.Getter;
 import tv.twitch.TwitchClient;
-import tv.twitch.handle.impl.obj.tmi.Channel;
-import tv.twitch.handle.impl.obj.tmi.User;
+import tv.twitch.tmi.handle.impl.obj.tmi.Channel;
+import tv.twitch.tmi.handle.impl.obj.tmi.User;
 
 import java.io.IOException;
 import java.util.HashMap;

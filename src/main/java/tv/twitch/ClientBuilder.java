@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.TimeUnit;
 
-public class ClientBuilder {
+class ClientBuilder {
 	private String id;
 	private String secret;
 	private String username;

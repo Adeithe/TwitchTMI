@@ -1,7 +1,7 @@
 package tv.twitch;
 
 import lombok.Getter;
-import tv.twitch.events.CallerRunPolicy;
+import tv.twitch.tmi.events.CallerRunPolicy;
 
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.TimeUnit;
