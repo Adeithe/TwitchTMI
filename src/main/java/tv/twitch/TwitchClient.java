@@ -48,5 +48,5 @@ public class TwitchClient {
 	 */
 	public TwitchAPI getAPI(String bearerToken) { return new TwitchAPI(this, bearerToken); }
 	
-	public static class Builder extends ClientBuilder {}
+	public static class Builder extends TwitchClientBuilder {}
 }

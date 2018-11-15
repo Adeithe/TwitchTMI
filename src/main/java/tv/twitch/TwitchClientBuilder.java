@@ -4,7 +4,11 @@ import java.util.Random;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.TimeUnit;
 
-class ClientBuilder {
+/**
+ * Please initialize the {@link TwitchClientBuilder} using {@link TwitchClient.Builder}
+ */
+@Deprecated
+public class TwitchClientBuilder {
 	private String id;
 	private String secret;
 	private String username;
@@ -12,7 +16,8 @@ class ClientBuilder {
 	
 	private ClientSettings settings;
 	
-	public ClientBuilder() {
+	@Deprecated
+	public TwitchClientBuilder() {
 		this.settings = new ClientSettings();
 		
 		this.username = "justinfan"+ (10000 + new Random().nextInt(89999));
@@ -25,7 +30,7 @@ class ClientBuilder {
 	 * @param clientID
 	 * @return The builder instance.
 	 */
-	public ClientBuilder withClientID(String clientID) {
+	public TwitchClientBuilder withClientID(String clientID) {
 		this.id = clientID;
 		return this;
 	}
@@ -36,7 +41,7 @@ class ClientBuilder {
 	 * @param clientSecret
 	 * @return The builder instance.
 	 */
-	public ClientBuilder withClientSecret(String clientSecret) {
+	public TwitchClientBuilder withClientSecret(String clientSecret) {
 		this.secret = clientSecret;
 		return this;
 	}
@@ -47,7 +52,7 @@ class ClientBuilder {
 	 * @param username
 	 * @return The builder instance.
 	 */
-	public ClientBuilder withUsername(String username) {
+	public TwitchClientBuilder withUsername(String username) {
 		this.username = username;
 		return this;
 	}
@@ -58,7 +63,7 @@ class ClientBuilder {
 	 * @param oAuth
 	 * @return The builder instance.
 	 */
-	public ClientBuilder withOAuth(String oAuth) {
+	public TwitchClientBuilder withOAuth(String oAuth) {
 		if(!oAuth.toLowerCase().startsWith("oauth:"))
 			oAuth = "oauth:"+ oAuth;
 		this.token = oAuth;
@@ -72,7 +77,7 @@ class ClientBuilder {
 	 * @param verbose
 	 * @return The builder instance.
 	 */
-	public ClientBuilder setVerbose(ClientSettings.VerboseLevel verbose) {
+	public TwitchClientBuilder setVerbose(ClientSettings.VerboseLevel verbose) {
 		this.settings.verbose = verbose;
 		return this;
 	}
@@ -83,7 +88,7 @@ class ClientBuilder {
 	 * @param piggyBack
 	 * @return
 	 */
-	public ClientBuilder withPiggyBack(RejectedExecutionHandler piggyBack) {
+	public TwitchClientBuilder withPiggyBack(RejectedExecutionHandler piggyBack) {
 		this.settings.piggyback = piggyBack;
 		return this;
 	}
@@ -94,7 +99,7 @@ class ClientBuilder {
 	 * @param minimumPoolSize
 	 * @return
 	 */
-	public ClientBuilder setMinimumPoolSize(int minimumPoolSize) {
+	public TwitchClientBuilder setMinimumPoolSize(int minimumPoolSize) {
 		this.settings.minimumPoolSize = minimumPoolSize;
 		return this;
 	}
@@ -105,7 +110,7 @@ class ClientBuilder {
 	 * @param maximumPoolSize
 	 * @return
 	 */
-	public ClientBuilder setMaximumPoolSize(int maximumPoolSize) {
+	public TwitchClientBuilder setMaximumPoolSize(int maximumPoolSize) {
 		this.settings.maximumPoolSize = maximumPoolSize;
 		return this;
 	}
@@ -117,7 +122,7 @@ class ClientBuilder {
 	 * @param threadTimeoutUnit
 	 * @return
 	 */
-	public ClientBuilder setThreadTimeout(long threadTimeout, TimeUnit threadTimeoutUnit) {
+	public TwitchClientBuilder setThreadTimeout(long threadTimeout, TimeUnit threadTimeoutUnit) {
 		this.settings.threadTimeout = threadTimeout;
 		this.settings.threadTimeoutUnit = threadTimeoutUnit;
 		return this;
@@ -129,7 +134,7 @@ class ClientBuilder {
 	 * @param overflow
 	 * @return
 	 */
-	public ClientBuilder setOverflow(int overflow) {
+	public TwitchClientBuilder setOverflow(int overflow) {
 		this.settings.overflow = overflow;
 		return this;
 	}
