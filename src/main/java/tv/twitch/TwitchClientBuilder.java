@@ -1,5 +1,7 @@
 package tv.twitch;
 
+import tv.twitch.tmi.irc.TwitchTMI;
+
 import java.util.Random;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.TimeUnit;
@@ -7,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Please initialize the {@link TwitchClientBuilder} using {@link TwitchClient.Builder}
  */
-@Deprecated
 public class TwitchClientBuilder {
 	private String id;
 	private String secret;
@@ -47,7 +48,7 @@ public class TwitchClientBuilder {
 	}
 	
 	/**
-	 * Configures the username used for the {@link tv.twitch.tmi.TwitchTMI} connection.
+	 * Configures the username used for the {@link TwitchTMI} connection.
 	 *
 	 * @param username
 	 * @return The builder instance.
@@ -58,7 +59,7 @@ public class TwitchClientBuilder {
 	}
 	
 	/**
-	 * Configures the OAuth Token used for the {@link tv.twitch.tmi.TwitchTMI} connection.
+	 * Configures the OAuth Token used for the {@link TwitchTMI} connection.
 	 *
 	 * @param oAuth
 	 * @return The builder instance.

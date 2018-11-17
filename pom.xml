@@ -50,14 +50,20 @@
             <version>2.8.2</version>
         </dependency>
         <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>1.3.9</version>
-        </dependency>
-        <dependency>
             <groupId>net.jodah</groupId>
             <artifactId>typetools</artifactId>
             <version>0.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-client-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus.bundles</groupId>
+            <artifactId>tyrus-standalone-client</artifactId>
+            <version>1.14</version>
         </dependency>
     </dependencies>
 </project>

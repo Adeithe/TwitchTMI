@@ -3,6 +3,8 @@ package tv.twitch.api;
 import lombok.Getter;
 import tv.twitch.TwitchClient;
 import tv.twitch.api.helix.API_Helix;
+import tv.twitch.api.obj.Header;
+import tv.twitch.api.obj.Method;
 import tv.twitch.api.v5.API_v5;
 import tv.twitch.utils.Utils;
 

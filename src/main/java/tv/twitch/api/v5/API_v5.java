@@ -1,8 +1,8 @@
 package tv.twitch.api.v5;
 
-import tv.twitch.api.APIVersion;
-import tv.twitch.api.Header;
-import tv.twitch.api.Method;
+import tv.twitch.api.obj.APIVersion;
+import tv.twitch.api.obj.Header;
+import tv.twitch.api.obj.Method;
 import tv.twitch.api.TwitchAPI;
 
 import java.io.IOException;

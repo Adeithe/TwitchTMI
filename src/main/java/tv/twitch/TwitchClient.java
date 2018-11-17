@@ -3,7 +3,8 @@ package tv.twitch;
 import lombok.Getter;
 import tv.twitch.api.TwitchAPI;
 import tv.twitch.tmi.events.EventDispatcher;
-import tv.twitch.tmi.TwitchTMI;
+import tv.twitch.tmi.irc.TwitchTMI;
+import tv.twitch.tmi.pubsub.PubSub;
 
 @Getter
 public class TwitchClient {
@@ -19,6 +20,7 @@ public class TwitchClient {
 	private ClientSettings settings;
 	private EventDispatcher eventDispatcher;
 	private TwitchTMI TMI;
+	private PubSub pubSub;
 	
 	TwitchClient(String clientID, String clientSecret, String username, String token, ClientSettings settings) {
 		this.clientID = clientID;
@@ -31,6 +33,7 @@ public class TwitchClient {
 		this.eventDispatcher = new EventDispatcher(this, this.settings.piggyback, this.settings.minimumPoolSize, this.settings.maximumPoolSize, this.settings.overflow, this.settings.threadTimeout, this.settings.threadTimeoutUnit);
 		
 		this.TMI = new TwitchTMI(this);
+		this.pubSub = new PubSub(this);
 	}
 	
 	/**

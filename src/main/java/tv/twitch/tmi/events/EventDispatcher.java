@@ -20,6 +20,11 @@ public class EventDispatcher {
 		this.defaultEventExecutor = new ThreadPoolExecutor(min, max, timeout, unit, new ArrayBlockingQueue<>(overflow), ThreadUtils.createThreadFactoryDaemon("Event Dispatcher"), piggyback);
 	}
 	
+	public <T extends Event> void registerListeners(IListener<T>... listeners) throws IllegalArgumentException {
+		for(IListener<T> listener : listeners)
+			this.registerListener(listener);
+	}
+	
 	public <T extends Event> void registerListener(IListener<T> listener) throws IllegalArgumentException { this.registerListener(listener, this.defaultEventExecutor); }
 	
 	public <T extends Event> void registerListener(IListener<T> listener, Executor executor) throws IllegalArgumentException {

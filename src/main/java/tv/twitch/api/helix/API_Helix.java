@@ -1,11 +1,10 @@
 package tv.twitch.api.helix;
 
 import lombok.Getter;
-import tv.twitch.api.APIVersion;
-import tv.twitch.api.Header;
-import tv.twitch.api.Method;
+import tv.twitch.api.obj.APIVersion;
+import tv.twitch.api.obj.Header;
+import tv.twitch.api.obj.Method;
 import tv.twitch.api.TwitchAPI;
-import tv.twitch.api.helix.users.UserAPI;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,12 +19,16 @@ public class API_Helix {
 	
 	private TwitchAPI API;
 	
-	private UserAPI users;
+	private _AnalyticsAPI analytics;
+	private _BitsAPI bits;
+	private _UserAPI users;
 	
 	public API_Helix(TwitchAPI API) {
 		this.API = API;
 		
-		this.users = new UserAPI(this);
+		this.analytics = new _AnalyticsAPI(this);
+		this.bits = new _BitsAPI(this);
+		this.users = new _UserAPI(this);
 	}
 	
 	public String CallAPI(Method method, String path) throws TwitchAPI.APIException, IOException {
