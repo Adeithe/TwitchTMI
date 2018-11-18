@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListenPacket extends PubSubPacket {
+	private Data data;
+	
 	public ListenPacket(String auth, PubSubTopic... topics) {
 		super(Type.LISTEN);
 		
@@ -15,13 +17,13 @@ public class ListenPacket extends PubSubPacket {
 		for(PubSubTopic topic : topics)
 			_topics.add(topic.toString());
 		
-		this.data = new ListenData();
-		((ListenData) this.data).topics = _topics;
-		((ListenData) this.data).auth = auth;
+		this.data = new Data();
+		this.data.topics = _topics;
+		this.data.auth = auth;
 	}
 	
 	@Setter
-	public static class ListenData {
+	public static class Data {
 		private List<String> topics;
 		@SerializedName("auth_token") private String auth;
 	}

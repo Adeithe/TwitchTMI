@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UnlistenPacket extends PubSubPacket {
+	private Data data;
+	
 	public UnlistenPacket(PubSubTopic... topics) {
 		super(Type.UNLISTEN);
 		
@@ -15,12 +17,12 @@ public class UnlistenPacket extends PubSubPacket {
 		for(PubSubTopic topic : topics)
 			_topics.add(topic.toString());
 		
-		this.data = new UnlistenData();
-		((UnlistenData) this.data).topics = _topics;
+		this.data = new Data();
+		this.data.topics = _topics;
 	}
 	
 	@Setter
-	public static class UnlistenData {
+	public static class Data {
 		private List<String> topics;
 		@SerializedName("auth_token") private String auth;
 	}

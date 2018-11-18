@@ -2,6 +2,7 @@ import tv.twitch.ClientSettings;
 import tv.twitch.TwitchClient;
 import tv.twitch.tmi.events.IListener;
 import tv.twitch.tmi.handle.impl.events.pubsub.ResponseEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.channel.ModeratorActionEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.ConnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.DisconnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.PongEvent;
@@ -23,7 +24,20 @@ public class PubSubTest {
 				Client.getEventDispatcher().registerListener(new PubSubPongEventListener());
 				Client.getEventDispatcher().registerListener(new PubSubResponseEventListener());
 				Client.getEventDispatcher().registerListener(new PubSubDisconnectEventListener());
+				
+				Client.getEventDispatcher().registerListener(new ModeratorActionEventListener());
+				
 				Client.getPubSub().connect();
+	}
+	
+	/**
+	 * For obvious reasons, this will only work if you are a moderator for the channel
+	 */
+	public static class ModeratorActionEventListener implements IListener<ModeratorActionEvent> {
+		@Override
+		public void handle(ModeratorActionEvent event) {
+			System.out.println(event.getAction().getIssuer() +" used command /"+ event.getAction().getCommand() +" "+ String.join(" ", event.getAction().getArgs()));
+		}
 	}
 	
 	public static class PubSubConnectEventListener implements IListener<ConnectEvent> {

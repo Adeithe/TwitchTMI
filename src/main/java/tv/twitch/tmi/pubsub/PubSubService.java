@@ -1,12 +1,17 @@
 package tv.twitch.tmi.pubsub;
 
 import lombok.Getter;
+import tv.twitch.tmi.handle.impl.events.pubsub.MessageEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.ResponseEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.channel.ModeratorActionEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.ConnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.DisconnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.PongEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.ReconnectEvent;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.PubSubPacket;
+import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.MessagePacket;
+import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.ResponsePacket;
+import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.ModeratorAction;
 import tv.twitch.utils.Utils;
 
 import javax.websocket.*;
@@ -79,10 +84,24 @@ public class PubSubService extends Thread {
 		if(this.getPubSub().getClient().getSettings().getVerbose().getLevel() > 0)
 			System.out.println("PubSub: > "+ message);
 		
-		PubSubPacket packet = Utils.GSON.fromJson(message, PubSubPacket.class);
-		switch(packet.getType()) {
+		switch(Utils.GSON.fromJson(message, PubSubPacket.class).getType()) {
+			case MESSAGE:
+				{
+					MessagePacket packet = Utils.GSON.fromJson(message, MessagePacket.class);
+					switch(PubSubTopic.TopicInfo.find(packet.getData().getTopic().split("\\.")[0])) {
+						case CHANNEL_MODERATOR_ACTIONS:
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new ModeratorActionEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), ModeratorAction.class), packet.getData().getTopic()));
+						break;
+						
+						default:
+							System.out.println("Got an unhandled message! Topic: "+ packet.getData().getTopic());
+					}
+					this.getPubSub().getClient().getEventDispatcher().dispatch(new MessageEvent(this.getPubSub(), packet));
+				}
+			break;
+			
 			case RESPONSE:
-				this.getPubSub().getClient().getEventDispatcher().dispatch(new ResponseEvent(this.getPubSub(), packet));
+				this.getPubSub().getClient().getEventDispatcher().dispatch(new ResponseEvent(this.getPubSub(), Utils.GSON.fromJson(message, ResponsePacket.class)));
 			break;
 			
 			case PONG:

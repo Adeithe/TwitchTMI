@@ -6,10 +6,8 @@ import java.util.UUID;
 
 @Getter
 public class PubSubPacket {
-	Object data;
 	String nonce;
 	Type type;
-	Error error;
 	
 	public PubSubPacket(Type type) { this(UUID.randomUUID().toString(), type); }
 	public PubSubPacket(String nonce, Type type) {
