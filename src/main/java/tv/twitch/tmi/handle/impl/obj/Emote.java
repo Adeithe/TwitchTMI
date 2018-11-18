@@ -1,4 +1,4 @@
-package tv.twitch.tmi.handle.impl.obj.irc;
+package tv.twitch.tmi.handle.impl.obj;
 
 import lombok.Getter;
 
@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 @Getter
 public class Emote {
 	private int emoteID;
-	private String code;
 	private List<Position> positions;
 	private Type type;
 	
@@ -20,15 +19,35 @@ public class Emote {
 	 */
 	public String getURL(Size size) { return this.getType().getURL().replaceFirst(Pattern.quote("{{ID}}"), this.getEmoteID()+"").replaceFirst(Pattern.quote("{{SIZE}}"), size.toString(this.getType())); }
 	
-	public Emote(int id, String code, String[] positions, Type type) {
+	public String getCode(tv.twitch.tmi.handle.impl.obj.irc.Message message) {
+		Position pos = positions.get(0);
+		return message.getText().substring(pos.start, pos.stop);
+	}
+	
+	public String getCode(tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.Whisper.Data whisper) {
+		Position pos = positions.get(0);
+		return whisper.getBody().substring(pos.start, pos.stop);
+	}
+	
+	public Emote(int id, Position[] positions) { this(id, positions, Type.TWITCH); }
+	public Emote(int id, Position[] positions, Type type) {
 		this.emoteID = id;
-		this.code = code;
+		this.positions = new ArrayList<>();
+		this.type = type;
+		
+		for(Position pos : positions)
+			this.positions.add(pos);
+	}
+	
+	public Emote(int id, String[] positions) { this(id, positions, Type.TWITCH); }
+	public Emote(int id, String[] positions, Type type) {
+		this.emoteID = id;
 		this.positions = new ArrayList<>();
 		this.type = type;
 		
 		for(int i = 0; i < positions.length; i++) {
 			int[] pos = Stream.of(positions[i].split("-")).mapToInt(Integer::parseInt).toArray();
-			this.positions.add(new Position(pos[0], pos[1]));
+			this.positions.add(new Position(pos[0], (pos[1] + 1)));
 		}
 	}
 	
@@ -37,7 +56,7 @@ public class Emote {
 		private int start;
 		private int stop;
 		
-		Position(int start, int stop) {
+		public Position(int start, int stop) {
 			this.start = start;
 			this.stop = stop;
 		}

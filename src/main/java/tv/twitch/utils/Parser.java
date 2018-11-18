@@ -1,12 +1,11 @@
 package tv.twitch.utils;
 
-import tv.twitch.tmi.handle.impl.obj.irc.Badge;
-import tv.twitch.tmi.handle.impl.obj.irc.Emote;
+import tv.twitch.tmi.handle.impl.obj.Badge;
+import tv.twitch.tmi.handle.impl.obj.Emote;
 import tv.twitch.tmi.handle.impl.obj.irc.RawData;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class Parser {
 	public static List<Badge> badges(String data) {
@@ -17,7 +16,7 @@ public class Parser {
 				String[] parts = explode[i].split("/");
 				Badge.Type type = Badge.Type.UNKNOWN;
 				try { type = Badge.Type.valueOf(parts[0].toUpperCase().replaceAll("-", "_")); } catch(Exception e) {}
-				badges.add(new Badge(type, Integer.parseInt(parts[1])));
+				badges.add(new Badge(type, parts[1]));
 			}
 		}
 		return badges;
@@ -33,10 +32,7 @@ public class Parser {
 				int id = Integer.parseInt(parts[0]);
 				String[] positions = parts[1].split(",");
 				
-				int[] first_pos = Stream.of(positions[0].split("-")).mapToInt(Integer::parseInt).toArray();
-				String code = message.substring(first_pos[0], first_pos[1]+1);
-				
-				emotes.add(new Emote(id, code, positions, Emote.Type.TWITCH));
+				emotes.add(new Emote(id, positions, Emote.Type.TWITCH));
 			}
 		}
 		return emotes;

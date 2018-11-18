@@ -1,13 +1,14 @@
-package tv.twitch.tmi.handle.impl.obj.irc;
+package tv.twitch.tmi.handle.impl.obj;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 
 @Getter
 public class Badge {
-	private Type type;
-	private int data;
+	@SerializedName("id") private Type type;
+	@SerializedName("version") private String data;
 	
-	public Badge(Type type, int data) {
+	public Badge(Type type, String data) {
 		this.type = type;
 		this.data = data;
 	}

@@ -3,20 +3,21 @@ import tv.twitch.TwitchClient;
 import tv.twitch.tmi.events.IListener;
 import tv.twitch.tmi.handle.impl.events.pubsub.ResponseEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.channel.ModeratorActionEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.channel.message.WhisperEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.ConnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.DisconnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.PongEvent;
+import tv.twitch.tmi.handle.impl.obj.Emote;
 import tv.twitch.tmi.pubsub.PubSub;
+import tv.twitch.tmi.pubsub.PubSubTopic;
 
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class PubSubTest {
 	public static void main(String[] args) throws Exception {
 		TwitchClient.Builder Builder = new TwitchClient.Builder();
 				Builder.withUsername(System.getenv("TWITCH_USERNAME2"));
-				Builder.withOAuth(System.getenv("TWITCH_OAUTH2"));
+				Builder.withOAuth(System.getenv("TWITCH_OAUTH3"));
 				Builder.setVerbose(ClientSettings.VerboseLevel.INCOMING);
 		
 		TwitchClient Client = Builder.build();
@@ -25,9 +26,22 @@ public class PubSubTest {
 				Client.getEventDispatcher().registerListener(new PubSubResponseEventListener());
 				Client.getEventDispatcher().registerListener(new PubSubDisconnectEventListener());
 				
+				Client.getEventDispatcher().registerListener(new WhisperEventListener());
 				Client.getEventDispatcher().registerListener(new ModeratorActionEventListener());
 				
 				Client.getPubSub().connect();
+	}
+	
+	public static class WhisperEventListener implements IListener<WhisperEvent> {
+		@Override
+		public void handle(WhisperEvent event) {
+			System.out.println(event.getWhisper().getBody());
+			if(event.getWhisper().getTags().getEmotes().size() > 0) {
+				System.out.println("	Emotes: ");
+				for(Emote emote : event.getWhisper().getTags().getEmotes())
+					System.out.println("		- " + emote.getCode(event.getWhisper()));
+			}
+		}
 	}
 	
 	/**
@@ -44,10 +58,21 @@ public class PubSubTest {
 		@Override
 		public void handle(ConnectEvent event) {
 			System.out.println("Connected!");
-			String nonce = event.getPubSub().listen(
-					PubSub.Topic.getChannelModerationActionsTopic(128266588, 26301881)
-			);
-			System.out.println("Sent packet with nonce: "+ nonce);
+			List<String> nonces = new ArrayList<>();
+				nonces.add(event.getPubSub().listen(PubSub.Topic.getWhispersTopic(128266588)));
+				nonces.add(event.getPubSub().listen(
+						PubSub.Topic.getChatroomsUserTopic(128266588),
+						PubSub.Topic.getPublicChannelBitEventsTopic(26301881),
+						PubSub.Topic.getUserBitUpdatesTopic(128266588),
+						PubSub.Topic.getUserSubscribeEventsTopic(128266588),
+						PubSub.Topic.getUserPropertiesUpdateTopic(128266588),
+						PubSub.Topic.getFollowsTopic(128266588),
+						PubSub.Topic.getChannelModerationActionsTopic(128266588, 26301881),
+						PubSub.Topic.getLeaderboardEventsTopic(26301881, PubSubTopic.TimeRange.WEEKLY)
+				));
+			System.out.println("Sent packet with nonce codes: ");
+			for(String nonce : nonces)
+				System.out.println("	- "+ nonce);
 		}
 	}
 	

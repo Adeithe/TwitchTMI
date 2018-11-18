@@ -1,6 +1,7 @@
 package tv.twitch.tmi.handle.impl.obj.irc;
 
 import lombok.Getter;
+import tv.twitch.tmi.handle.impl.obj.Badge;
 import tv.twitch.tmi.irc.TwitchTMI;
 import tv.twitch.utils.Parser;
 import tv.twitch.utils.Utils;

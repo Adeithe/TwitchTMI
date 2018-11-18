@@ -4,7 +4,7 @@ import tv.twitch.tmi.events.IListener;
 import tv.twitch.tmi.handle.impl.events.irc.channel.ChannelJoinEvent;
 import tv.twitch.tmi.handle.impl.events.irc.channel.message.MessageEvent;
 import tv.twitch.tmi.handle.impl.events.irc.status.ReadyEvent;
-import tv.twitch.tmi.handle.impl.obj.irc.Emote;
+import tv.twitch.tmi.handle.impl.obj.Emote;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,7 +44,7 @@ public class IRCTest {
 			if(emotes.size() > 0) {
 				System.out.println("	Emotes:");
 				for(int i = 0; i < emotes.size(); i++) {
-					System.out.println("		- " + emotes.get(i).getCode());
+					System.out.println("		- " + emotes.get(i).getCode(event.getMessage()));
 				}
 			}
 		}

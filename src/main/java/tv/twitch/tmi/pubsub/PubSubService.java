@@ -4,6 +4,7 @@ import lombok.Getter;
 import tv.twitch.tmi.handle.impl.events.pubsub.MessageEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.ResponseEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.channel.ModeratorActionEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.channel.message.WhisperEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.ConnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.DisconnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.PongEvent;
@@ -12,6 +13,7 @@ import tv.twitch.tmi.handle.impl.obj.pubsub.packet.PubSubPacket;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.MessagePacket;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.ResponsePacket;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.ModeratorAction;
+import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.Whisper;
 import tv.twitch.utils.Utils;
 
 import javax.websocket.*;
@@ -89,6 +91,10 @@ public class PubSubService extends Thread {
 				{
 					MessagePacket packet = Utils.GSON.fromJson(message, MessagePacket.class);
 					switch(PubSubTopic.TopicInfo.find(packet.getData().getTopic().split("\\.")[0])) {
+						case WHISPERS:
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new WhisperEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), Whisper.class), packet.getData().getTopic()));
+						break;
+						
 						case CHANNEL_MODERATOR_ACTIONS:
 							this.getPubSub().getClient().getEventDispatcher().dispatch(new ModeratorActionEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), ModeratorAction.class), packet.getData().getTopic()));
 						break;
