@@ -1,70 +1,94 @@
 package tv.twitch.api;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
-import tv.twitch.api.v.APIVersions;
+import tv.twitch.TwitchClient;
+import tv.twitch.api.v.helix.API_Helix;
+import tv.twitch.api.obj.Header;
+import tv.twitch.api.obj.Method;
+import tv.twitch.api.v.v5.API_v5;
+import tv.twitch.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
+@Getter
 public class TwitchAPI {
 	public static final String BASE_URL = "https://api.twitch.tv/";
 	public static final String USER_AGENT = "Mozilla/5.0";
 	
-	@Getter private String id;
-	@Getter private String secret;
-	@Getter private Authorization authorization;
-	@Getter private APIVersions versions;
-	@Getter private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	private TwitchClient client;
+	private String bearerToken;
 	
-	public TwitchAPI(String clientID, String clientSecret) {
-		this.id = clientID;
-		this.secret = clientSecret;
-		this.versions = new APIVersions(this);
+	private Versions versions;
+	
+	public TwitchAPI(TwitchClient client) { this(client, null); }
+	public TwitchAPI(TwitchClient client, String bearerToken) {
+		this.client = client;
+		this.bearerToken = bearerToken;
+		
+		this.versions = new Versions(this);
 	}
 	
-	public void setAuthorization(Authorization.Type type, String token) { this.setAuthorization(new Authorization(type, token)); }
-	public void setAuthorization(Authorization authorization) { this.authorization = authorization; }
-	
-	public String CallAPI(Method method, String url) throws IOException { return CallAPI(method, url, null); }
-	public String CallAPI(Method method, String url, Authorization authorization) throws IOException {
-		url = BASE_URL + url;
+	@Getter
+	public static class Versions {
+		public API_Helix helix;
 		
+		@Deprecated public API_v5 v5;
+		
+		Versions(TwitchAPI API) {
+			this.helix = new API_Helix(API);
+			
+			this.v5 = new API_v5(API);
+		}
+	}
+	
+	public String CallAPI(Method method, String path, List<Header> headers) throws APIException, IOException {
 		StringBuilder response = new StringBuilder();
 		
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		URL url = new URL(BASE_URL + path);
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod(method.toString());
-			con.setRequestProperty("Client-ID", this.id);
 			con.setRequestProperty("User-Agent", USER_AGENT);
-			if(authorization != null)
-				con.setRequestProperty("Authorization", authorization.toString());
+			for(Header header : headers)
+				con.setRequestProperty(header.getName(), header.getValue());
 		
-		int response_code = con.getResponseCode();
-		if(response_code != 200)
-			return this.getGson().toJson(new ErrorResponse(response_code));
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		BufferedReader br = new BufferedReader(new InputStreamReader((con.getResponseCode() < HttpURLConnection.HTTP_BAD_REQUEST)?con.getInputStream():con.getErrorStream()));
 		
 		String line;
 		while((line = br.readLine()) != null)
 			response.append(line);
 		br.close();
 		
+		if(con.getResponseCode() != 200)
+			throw new APIException(response.toString());
+		
 		return response.toString();
 	}
 	
 	@Getter
-	public static class ErrorResponse {
-		@SerializedName("response_code") private int status;
+	public static class APIException extends Exception {
+		private ErrorResponse error;
 		
-		public ErrorResponse(int response_code) {
-			this.status = response_code;
+		APIException(String response) {
+			super("API Error!");
+			this.error = Utils.GSON.fromJson(response, ErrorResponse.class);
+		}
+		
+		@Override
+		public String toString() { return Utils.GSON.toJson(this.error); }
+		
+		@Getter
+		public static class ErrorResponse {
+			private int status;
+			private String error;
+			private String message;
+			
+			@Override
+			public String toString() { return Utils.GSON.toJson(this); }
 		}
 	}
 }

@@ -2,16 +2,17 @@ package tv.twitch.api.v.helix.obj;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
+import tv.twitch.api.obj.ResponseData;
 
 import java.util.List;
 
 @Getter
-public class ClipResponse {
-	@SerializedName("data") private List<Clip> clips;
+public class ClipResponse extends ResponseData {
+	private List<Clip> data;
 	private Pagination pagination;
 	
 	@Getter
-	public static class Clip {
+	public static class Clip extends ResponseData {
 		private String id;
 		private String title;
 		private String url;
