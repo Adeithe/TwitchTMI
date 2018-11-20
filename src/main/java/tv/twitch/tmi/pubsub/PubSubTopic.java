@@ -52,6 +52,8 @@ public class PubSubTopic {
 	 */
 	public static PubSubTopic getWhispersTopic(int userId) { return getPubSubTopic(TopicInfo.WHISPERS, userId); }
 	
+	public static PubSubTopic getStreamChatroomTopic(int channelId) { return getPubSubTopic(TopicInfo.STREAM_CHATROOM, channelId); }
+	public static PubSubTopic getChannelSubscriptionGiftsTopic(int channelId) { return getPubSubTopic(TopicInfo.CHANNEL_SUB_GIFTS, channelId); }
 	public static PubSubTopic getChatroomsUserTopic(int userId) { return getPubSubTopic(TopicInfo.CHATROOM_USER, userId); }
 	public static PubSubTopic getPublicChannelBitEventsTopic(int channelId) { return getPubSubTopic(TopicInfo.PUBLIC_CHANNEL_BIT_EVENTS, channelId); }
 	public static PubSubTopic getUserBitUpdatesTopic(int userId) { return getPubSubTopic(TopicInfo.USER_BIT_UPDATES, userId); }
@@ -60,6 +62,8 @@ public class PubSubTopic {
 	public static PubSubTopic getFollowsTopic(int userId) { return getPubSubTopic(TopicInfo.FOLLOWS, userId); }
 	public static PubSubTopic getChannelModerationActionsTopic(int userId, int channelId) { return getPubSubTopic(TopicInfo.CHANNEL_MODERATOR_ACTIONS, userId, channelId); }
 	public static PubSubTopic getLeaderboardEventsTopic(int channelId, TimeRange timeRange) { return getPubSubTopic(TopicInfo.LEADERBOARD_EVENTS, "bits-usage-by-channel-v1-"+ channelId +"-"+ timeRange.toString()); }
+	public static PubSubTopic getOnsiteNotifications(int userId) { return getPubSubTopic(TopicInfo.ONSITE_NOTIFICATIONS, userId); }
+	public static PubSubTopic getPresence(int userId) { return getPubSubTopic(TopicInfo.PRESENCE, userId); }
 	
 	private static PubSubTopic getPubSubTopic(TopicInfo info, Object... args) {
 		StringBuilder str = new StringBuilder().append(info.toString());
@@ -75,6 +79,8 @@ public class PubSubTopic {
 		WHISPERS("whispers"),
 		
 		// Undocumented
+		STREAM_CHATROOM("stream-chat-room-v1"),
+		CHANNEL_SUB_GIFTS("channel-sub-gifts-v1"),
 		CHATROOM_USER("chatrooms-user-v1"),
 		PUBLIC_CHANNEL_BIT_EVENTS("channel-bit-events-public"),
 		USER_BIT_UPDATES("user-bits-updates-v1"),
@@ -83,6 +89,8 @@ public class PubSubTopic {
 		FOLLOWS("follows"),
 		CHANNEL_MODERATOR_ACTIONS("chat_moderator_actions"),
 		LEADERBOARD_EVENTS("leaderboard-events-v1"),
+		ONSITE_NOTIFICATIONS("onsite-notifications"),
+		PRESENCE("presence"),
 		
 		UNKNOWN(null);
 		

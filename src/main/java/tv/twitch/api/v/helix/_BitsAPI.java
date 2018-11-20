@@ -1,6 +1,6 @@
-package tv.twitch.api.helix;
+package tv.twitch.api.v.helix;
 
-import tv.twitch.api.helix.obj.BitsLeaderboardResponse;
+import tv.twitch.api.v.helix.obj.BitsLeaderboardResponse;
 
 public class _BitsAPI {
 	private API_Helix API;

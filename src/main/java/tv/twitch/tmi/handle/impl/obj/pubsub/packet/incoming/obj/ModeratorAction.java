@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 public class ModeratorAction {
 	private Action data;
+	private String type;
 	
 	@Getter
 	public static class Action {

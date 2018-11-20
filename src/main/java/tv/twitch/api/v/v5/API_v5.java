@@ -1,4 +1,4 @@
-package tv.twitch.api.v5;
+package tv.twitch.api.v.v5;
 
 import tv.twitch.api.obj.APIVersion;
 import tv.twitch.api.obj.Header;

@@ -1,12 +1,13 @@
-package tv.twitch.api.helix.obj;
+package tv.twitch.api.v.helix.obj;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
+import tv.twitch.api.obj.ResponseData;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnalyticsResponse {
+public class AnalyticsResponse extends ResponseData {
 	private List<Analytics> data;
 	@Getter private Pagination pagination;
 	
@@ -49,7 +50,7 @@ public class AnalyticsResponse {
 	}
 	
 	@Getter
-	public static class DateRange {
+	public static class DateRange extends ResponseData {
 		@SerializedName("started_at") private String startedAt;
 		@SerializedName("ended_at") private String endedAt;
 	}
@@ -66,5 +67,5 @@ public class AnalyticsResponse {
 		public String toString() { return this.type; }
 	}
 	
-	public abstract static class Analytics {}
+	public static class Analytics extends ResponseData {}
 }

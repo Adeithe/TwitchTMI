@@ -6,7 +6,6 @@ import tv.twitch.tmi.handle.impl.obj.pubsub.packet.ListenPacket;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.PubSubPacket;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.UnlistenPacket;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PubSub {

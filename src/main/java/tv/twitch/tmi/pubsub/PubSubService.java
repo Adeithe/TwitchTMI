@@ -3,17 +3,20 @@ package tv.twitch.tmi.pubsub;
 import lombok.Getter;
 import tv.twitch.tmi.handle.impl.events.pubsub.MessageEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.ResponseEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.channel.ChannelSubscriptionGiftEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.channel.ModeratorActionEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.channel.StreamChatroomEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.channel.message.WhisperEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.ConnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.DisconnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.PongEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.ReconnectEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.user.OnsiteNotificationEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.user.PresenceUpdateEvent;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.PubSubPacket;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.MessagePacket;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.ResponsePacket;
-import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.ModeratorAction;
-import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.Whisper;
+import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.*;
 import tv.twitch.utils.Utils;
 
 import javax.websocket.*;
@@ -91,12 +94,69 @@ public class PubSubService extends Thread {
 				{
 					MessagePacket packet = Utils.GSON.fromJson(message, MessagePacket.class);
 					switch(PubSubTopic.TopicInfo.find(packet.getData().getTopic().split("\\.")[0])) {
+						case BITS:
+							// TODO: BITS
+						break;
+						
+						case CHANNEL_SUBSCRIPTIONS:
+							// TODO: CHANNEL_SUBSCRIPTIONS
+						break;
+						
+						case COMMERCE:
+							// TODO: COMMERCE
+						break;
+						
 						case WHISPERS:
 							this.getPubSub().getClient().getEventDispatcher().dispatch(new WhisperEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), Whisper.class), packet.getData().getTopic()));
 						break;
 						
+						// Undocumented
+						case STREAM_CHATROOM:
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new StreamChatroomEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), StreamChatroom.class), packet.getData().getTopic()));
+						break;
+						
+						case CHANNEL_SUB_GIFTS:
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new ChannelSubscriptionGiftEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), SubscriptionGift.class), packet.getData().getTopic()));
+						break;
+						
+						case CHATROOM_USER:
+							// TODO: CHATROOM_USER
+						break;
+						
+						case PUBLIC_CHANNEL_BIT_EVENTS:
+							// TODO: PUBLIC_CHANNEL_BIT_EVENTS
+						break;
+						
+						case USER_BIT_UPDATES:
+							// TODO: USER_BIT_UPDATES
+						break;
+						
+						case USER_SUBSCRIBE_EVENTS:
+							// TODO: USER_SUBSCRIBE_EVENTS
+						break;
+						
+						case USER_PROPERTIES_UPDATE:
+							// TODO: USER_PROPERTIES_UPDATE
+						break;
+						
+						case FOLLOWS:
+							// TODO: FOLLOWS
+						break;
+						
 						case CHANNEL_MODERATOR_ACTIONS:
 							this.getPubSub().getClient().getEventDispatcher().dispatch(new ModeratorActionEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), ModeratorAction.class), packet.getData().getTopic()));
+						break;
+						
+						case LEADERBOARD_EVENTS:
+							// TODO: LEADERBOARD_EVENTS
+						break;
+						
+						case ONSITE_NOTIFICATIONS:
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new OnsiteNotificationEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), OnsiteNotification.class), packet.getData().getTopic()));
+						break;
+						
+						case PRESENCE:
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new PresenceUpdateEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), Presence.class), packet.getData().getTopic()));
 						break;
 						
 						default:

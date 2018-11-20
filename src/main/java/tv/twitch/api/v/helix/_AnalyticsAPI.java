@@ -1,6 +1,6 @@
-package tv.twitch.api.helix;
+package tv.twitch.api.v.helix;
 
-import tv.twitch.api.helix.obj.AnalyticsResponse;
+import tv.twitch.api.v.helix.obj.AnalyticsResponse;
 
 public class _AnalyticsAPI {
 	private API_Helix API;

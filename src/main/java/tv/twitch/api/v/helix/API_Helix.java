@@ -1,4 +1,4 @@
-package tv.twitch.api.helix;
+package tv.twitch.api.v.helix;
 
 import lombok.Getter;
 import tv.twitch.api.obj.APIVersion;
@@ -21,14 +21,22 @@ public class API_Helix {
 	
 	private _AnalyticsAPI analytics;
 	private _BitsAPI bits;
+	private _ClipAPI clips;
+	private _GameAPI games;
+	private _StreamAPI streams;
 	private _UserAPI users;
+	private _VideoAPI video;
 	
 	public API_Helix(TwitchAPI API) {
 		this.API = API;
 		
 		this.analytics = new _AnalyticsAPI(this);
 		this.bits = new _BitsAPI(this);
+		this.clips = new _ClipAPI(this);
+		this.games = new _GameAPI(this);
+		this.streams = new _StreamAPI(this);
 		this.users = new _UserAPI(this);
+		this.video = new _VideoAPI(this);
 	}
 	
 	public String CallAPI(Method method, String path) throws TwitchAPI.APIException, IOException {
