@@ -26,16 +26,16 @@ public class PubSub {
 			this.service.start();
 	}
 	
-	public String listen(List<PubSubTopic> topics) { return listen(topics.toArray(new PubSubTopic[topics.size()])); }
-	public String listen(PubSubTopic... topics) {
+	public String listen(List<PubSub.Topic> topics) { return listen(topics.toArray(new PubSub.Topic[topics.size()])); }
+	public String listen(PubSub.Topic... topics) {
 		String auth = getClient().getOAuth();
 		if(auth.toLowerCase().startsWith("oauth:")) auth = auth.substring(6);
 		
 		return service.send(new ListenPacket(auth, topics));
 	}
 	
-	public String unlisten(List<PubSubTopic> topics) { return unlisten(topics.toArray(new PubSubTopic[topics.size()])); }
-	public String unlisten(PubSubTopic... topics) { return service.send(new UnlistenPacket(topics)); }
+	public String unlisten(List<PubSub.Topic> topics) { return unlisten(topics.toArray(new PubSub.Topic[topics.size()])); }
+	public String unlisten(PubSub.Topic... topics) { return service.send(new UnlistenPacket(topics)); }
 	
 	/**
 	 * Twitch requires that the PubSub sends a PING request at least once every 5 minutes with a random jitter to prevent packet flooding.

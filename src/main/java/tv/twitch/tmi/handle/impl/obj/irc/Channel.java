@@ -1,7 +1,9 @@
 package tv.twitch.tmi.handle.impl.obj.irc;
 
+import com.frankerfacez.FrankerFaceZ;
 import lombok.Getter;
 import lombok.Setter;
+import net.betterttv.BetterTTV;
 import tv.twitch.tmi.irc.TwitchTMI;
 import tv.twitch.utils.Utils;
 
@@ -25,6 +27,9 @@ public class Channel {
 	private boolean subOnlyMode;
 	private List<String> mods = new ArrayList<>();
 	
+	private List<BetterTTV.Emote> BTTVEmotes;
+	private List<FrankerFaceZ.Emote> FFZEmotes;
+	
 	public Channel(TwitchTMI TMI, String name, boolean connected) { this(TMI, name, new HashMap<>(), connected); }
 	public Channel(TwitchTMI TMI, String name, HashMap<String, String> tags, boolean connected) {
 		if(name.startsWith("#"))
@@ -45,6 +50,26 @@ public class Channel {
 			if(tags.containsKey("subs-only"))
 				this.subOnlyMode = tags.get("subs-only").equals("1");
 		}
+		
+		if(this.connected) {
+			try {
+				BetterTTV();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void BetterTTV() throws IOException {
+		this.BTTVEmotes = BetterTTV.getChannelEmotes(this.name).getEmotes();
+	}
+	
+	public void FrankerFaceZ() throws IOException {
+		List<FrankerFaceZ.Emote> emotes = new ArrayList<>();
+		for(FrankerFaceZ.Set set : FrankerFaceZ.getRoom(this.name, true).getSets().values())
+			for(FrankerFaceZ.Emote emote : set.getEmoticons())
+				emotes.add(emote);
+		this.FFZEmotes = emotes;
 	}
 	
 	/**

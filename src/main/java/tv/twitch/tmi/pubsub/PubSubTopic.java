@@ -23,7 +23,7 @@ public class PubSubTopic {
 	 * @param channelId
 	 * @return
 	 */
-	public static PubSubTopic getBitsTopic(int channelId) { return getPubSubTopic(TopicInfo.BITS, channelId); }
+	public static PubSub.Topic getBitsTopic(int channelId) { return getPubSubTopic(TopicInfo.BITS, channelId); }
 	
 	/**
 	 * Anyone subscribes (first month), resubscribes (subsequent months), or gifts a subscription to a channel.
@@ -33,7 +33,7 @@ public class PubSubTopic {
 	 * @param channelId
 	 * @return
 	 */
-	public static PubSubTopic getChannelSubscriptionsTopic(int channelId) { return getPubSubTopic(TopicInfo.CHANNEL_SUBSCRIPTIONS, channelId); }
+	public static PubSub.Topic getChannelSubscriptionsTopic(int channelId) { return getPubSubTopic(TopicInfo.CHANNEL_SUBSCRIPTIONS, channelId); }
 	
 	/**
 	 * Anyone makes a purchase on a channel.
@@ -41,7 +41,7 @@ public class PubSubTopic {
 	 * @param channelId
 	 * @return
 	 */
-	public static PubSubTopic getCommerceTopic(int channelId) { return getPubSubTopic(TopicInfo.COMMERCE, channelId); }
+	public static PubSub.Topic getCommerceTopic(int channelId) { return getPubSubTopic(TopicInfo.COMMERCE, channelId); }
 	
 	/**
 	 * Anyone whispers the specified user.
@@ -51,28 +51,28 @@ public class PubSubTopic {
 	 * @param userId
 	 * @return
 	 */
-	public static PubSubTopic getWhispersTopic(int userId) { return getPubSubTopic(TopicInfo.WHISPERS, userId); }
+	public static PubSub.Topic getWhispersTopic(int userId) { return getPubSubTopic(TopicInfo.WHISPERS, userId); }
 	
-	public static PubSubTopic getVideoPlaybackTopic(String username) { return getPubSubTopic(TopicInfo.VIDEO_PLAYBACK, username); }
-	public static PubSubTopic getVideoPlaybackTopic(int channelId) { return getPubSubTopic(TopicInfo.VIDEO_PLAYBACK_BY_ID, channelId); }
-	public static PubSubTopic getStreamChatroomTopic(int channelId) { return getPubSubTopic(TopicInfo.STREAM_CHATROOM, channelId); }
-	public static PubSubTopic getChannelSubscriptionGiftsTopic(int channelId) { return getPubSubTopic(TopicInfo.CHANNEL_SUB_GIFTS, channelId); }
-	public static PubSubTopic getChatroomsUserTopic(int userId) { return getPubSubTopic(TopicInfo.CHATROOM_USER, userId); }
-	public static PubSubTopic getPublicChannelBitEventsTopic(int channelId) { return getPubSubTopic(TopicInfo.PUBLIC_CHANNEL_BIT_EVENTS, channelId); }
-	public static PubSubTopic getUserBitUpdatesTopic(int userId) { return getPubSubTopic(TopicInfo.USER_BIT_UPDATES, userId); }
-	public static PubSubTopic getUserSubscribeEventsTopic(int userId) { return getPubSubTopic(TopicInfo.USER_SUBSCRIBE_EVENTS, userId); }
-	public static PubSubTopic getUserPropertiesUpdateTopic(int userId) { return getPubSubTopic(TopicInfo.USER_PROPERTIES_UPDATE, userId); }
-	public static PubSubTopic getFollowsTopic(int userId) { return getPubSubTopic(TopicInfo.FOLLOWS, userId); }
-	public static PubSubTopic getChannelModerationActionsTopic(int userId, int channelId) { return getPubSubTopic(TopicInfo.CHANNEL_MODERATOR_ACTIONS, userId, channelId); }
-	public static PubSubTopic getLeaderboardEventsTopic(int channelId, Leaderboard.TimeRange timeRange) { return getPubSubTopic(TopicInfo.LEADERBOARD_EVENTS, "bits-usage-by-channel-v1-"+ channelId +"-"+ timeRange.toString()); }
-	public static PubSubTopic getOnsiteNotifications(int userId) { return getPubSubTopic(TopicInfo.ONSITE_NOTIFICATIONS, userId); }
-	public static PubSubTopic getPresence(int userId) { return getPubSubTopic(TopicInfo.PRESENCE, userId); }
+	public static PubSub.Topic getVideoPlaybackTopic(String username) { return getPubSubTopic(TopicInfo.VIDEO_PLAYBACK, username); }
+	public static PubSub.Topic getVideoPlaybackTopic(int channelId) { return getPubSubTopic(TopicInfo.VIDEO_PLAYBACK_BY_ID, channelId); }
+	public static PubSub.Topic getStreamChatroomTopic(int channelId) { return getPubSubTopic(TopicInfo.STREAM_CHATROOM, channelId); }
+	public static PubSub.Topic getChannelSubscriptionGiftsTopic(int channelId) { return getPubSubTopic(TopicInfo.CHANNEL_SUB_GIFTS, channelId); }
+	public static PubSub.Topic getChatroomsUserTopic(int userId) { return getPubSubTopic(TopicInfo.CHATROOM_USER, userId); }
+	public static PubSub.Topic getPublicChannelBitEventsTopic(int channelId) { return getPubSubTopic(TopicInfo.PUBLIC_CHANNEL_BIT_EVENTS, channelId); }
+	public static PubSub.Topic getUserBitUpdatesTopic(int userId) { return getPubSubTopic(TopicInfo.USER_BIT_UPDATES, userId); }
+	public static PubSub.Topic getUserSubscribeEventsTopic(int userId) { return getPubSubTopic(TopicInfo.USER_SUBSCRIBE_EVENTS, userId); }
+	public static PubSub.Topic getUserPropertiesUpdateTopic(int userId) { return getPubSubTopic(TopicInfo.USER_PROPERTIES_UPDATE, userId); }
+	public static PubSub.Topic getFollowsTopic(int userId) { return getPubSubTopic(TopicInfo.FOLLOWS, userId); }
+	public static PubSub.Topic getChannelModerationActionsTopic(int userId, int channelId) { return getPubSubTopic(TopicInfo.CHANNEL_MODERATOR_ACTIONS, userId, channelId); }
+	public static PubSub.Topic getLeaderboardEventsTopic(int channelId, Leaderboard.TimeRange timeRange) { return getPubSubTopic(TopicInfo.LEADERBOARD_EVENTS, "bits-usage-by-channel-v1-"+ channelId +"-"+ timeRange.toString()); }
+	public static PubSub.Topic getOnsiteNotifications(int userId) { return getPubSubTopic(TopicInfo.ONSITE_NOTIFICATIONS, userId); }
+	public static PubSub.Topic getPresence(int userId) { return getPubSubTopic(TopicInfo.PRESENCE, userId); }
 	
-	private static PubSubTopic getPubSubTopic(TopicInfo info, Object... args) {
+	private static PubSub.Topic getPubSubTopic(TopicInfo info, Object... args) {
 		StringBuilder str = new StringBuilder().append(info.toString());
 		for(Object obj : args)
 			str.append("."+ obj.toString());
-		return new PubSubTopic(str.toString());
+		return new PubSub.Topic(str.toString());
 	}
 	
 	public enum TopicInfo {

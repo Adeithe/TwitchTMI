@@ -1,6 +1,8 @@
 package tv.twitch.tmi.irc;
 
+import com.frankerfacez.FrankerFaceZ;
 import lombok.Getter;
+import net.betterttv.BetterTTV;
 import tv.twitch.tmi.events.IListener;
 import tv.twitch.tmi.handle.impl.events.irc.channel.ChannelJoinEvent;
 import tv.twitch.tmi.handle.impl.events.irc.channel.ChannelLeaveEvent;
@@ -10,6 +12,7 @@ import tv.twitch.tmi.handle.impl.events.irc.channel.user.UserBanEvent;
 import tv.twitch.tmi.handle.impl.events.irc.channel.user.UserTimeoutEvent;
 import tv.twitch.tmi.handle.impl.events.irc.status.*;
 import tv.twitch.tmi.handle.impl.events.irc.raw.RawDataEvent;
+import tv.twitch.tmi.handle.impl.obj.Emote;
 import tv.twitch.tmi.handle.impl.obj.irc.Channel;
 import tv.twitch.tmi.handle.impl.obj.irc.Message;
 import tv.twitch.tmi.handle.impl.obj.irc.User;
@@ -20,8 +23,10 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class ChatService extends Thread {
 	public static final String IP = "irc.chat.twitch.tv";
@@ -35,6 +40,9 @@ public class ChatService extends Thread {
 	@Getter private TwitchTMI TMI;
 	@Getter private User clientUser;
 	@Getter private HashMap<String, Channel> connectedChannels = new HashMap<>();
+	
+	@Getter private List<BetterTTV.Emote> globalBTTVEmotes;
+	@Getter private List<FrankerFaceZ.Emote> globalFFZEmotes;
 	
 	@Getter private boolean connected;
 	@Getter private boolean ready;
@@ -100,6 +108,9 @@ public class ChatService extends Thread {
 						"NICK " + this.getTMI().getClient().getUsername()
 				);
 				
+				BetterTTV();
+				FrankerFaceZ();
+				
 				String line = null;
 				while(this.isConnected() && ((line = this.Reader.readLine()) != null)) {
 					if(this.TMI.getClient().getSettings().getVerbose().getLevel() > 0)
@@ -123,6 +134,18 @@ public class ChatService extends Thread {
 			this.getTMI().getClient().getEventDispatcher().dispatch(new ReconnectEvent(this.getTMI()));
 			this.onStart();
 		}
+	}
+	
+	public void BetterTTV() throws IOException {
+		this.globalBTTVEmotes = BetterTTV.getGlobalEmotes().getEmotes();
+	}
+	
+	public void FrankerFaceZ() throws IOException {
+		List<FrankerFaceZ.Emote> emotes = new ArrayList<>();
+		for(FrankerFaceZ.Set set : FrankerFaceZ.getDefaultSet().getSets().values())
+			for(FrankerFaceZ.Emote emote : set.getEmoticons())
+				emotes.add(emote);
+		this.globalFFZEmotes = emotes;
 	}
 	
 	@Getter

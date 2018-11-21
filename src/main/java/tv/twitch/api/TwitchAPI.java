@@ -51,10 +51,10 @@ public class TwitchAPI {
 		
 		URL url = new URL(BASE_URL + path);
 		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod(method.toString());
-			con.setRequestProperty("User-Agent", USER_AGENT);
-			for(Header header : headers)
-				con.setRequestProperty(header.getName(), header.getValue());
+				con.setRequestMethod(method.toString());
+				con.setRequestProperty("User-Agent", USER_AGENT);
+				for(Header header : headers)
+					con.setRequestProperty(header.getName(), header.getValue());
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader((con.getResponseCode() < HttpURLConnection.HTTP_BAD_REQUEST)?con.getInputStream():con.getErrorStream()));
 		
