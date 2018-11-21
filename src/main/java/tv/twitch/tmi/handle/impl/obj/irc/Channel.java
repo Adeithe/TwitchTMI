@@ -54,6 +54,7 @@ public class Channel {
 		if(this.connected) {
 			try {
 				BetterTTV();
+				FrankerFaceZ();
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
