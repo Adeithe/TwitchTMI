@@ -8,6 +8,7 @@ import tv.twitch.tmi.handle.impl.events.pubsub.status.ConnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.DisconnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.PongEvent;
 import tv.twitch.tmi.handle.impl.obj.Emote;
+import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.Leaderboard;
 import tv.twitch.tmi.pubsub.PubSub;
 import tv.twitch.tmi.pubsub.PubSubTopic;
 
@@ -68,7 +69,7 @@ public class PubSubTest {
 						PubSub.Topic.getUserPropertiesUpdateTopic(128266588),
 						PubSub.Topic.getFollowsTopic(128266588),
 						PubSub.Topic.getChannelModerationActionsTopic(128266588, 26301881),
-						PubSub.Topic.getLeaderboardEventsTopic(26301881, PubSubTopic.TimeRange.WEEKLY)
+						PubSub.Topic.getLeaderboardEventsTopic(26301881, Leaderboard.TimeRange.WEEKLY)
 				));
 			System.out.println("Sent packet with nonce codes: ");
 			for(String nonce : nonces)

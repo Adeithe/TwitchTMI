@@ -3,9 +3,7 @@ package tv.twitch.tmi.pubsub;
 import lombok.Getter;
 import tv.twitch.tmi.handle.impl.events.pubsub.MessageEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.ResponseEvent;
-import tv.twitch.tmi.handle.impl.events.pubsub.channel.ChannelSubscriptionGiftEvent;
-import tv.twitch.tmi.handle.impl.events.pubsub.channel.ModeratorActionEvent;
-import tv.twitch.tmi.handle.impl.events.pubsub.channel.StreamChatroomEvent;
+import tv.twitch.tmi.handle.impl.events.pubsub.channel.*;
 import tv.twitch.tmi.handle.impl.events.pubsub.channel.message.WhisperEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.ConnectEvent;
 import tv.twitch.tmi.handle.impl.events.pubsub.status.DisconnectEvent;
@@ -111,6 +109,11 @@ public class PubSubService extends Thread {
 						break;
 						
 						// Undocumented
+						case VIDEO_PLAYBACK:
+						case VIDEO_PLAYBACK_BY_ID:
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new VideoPlaybackEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), VideoPlayback.class), packet.getData().getTopic()));
+						break;
+						
 						case STREAM_CHATROOM:
 							this.getPubSub().getClient().getEventDispatcher().dispatch(new StreamChatroomEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), StreamChatroom.class), packet.getData().getTopic()));
 						break;
@@ -148,7 +151,7 @@ public class PubSubService extends Thread {
 						break;
 						
 						case LEADERBOARD_EVENTS:
-							// TODO: LEADERBOARD_EVENTS
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new LeaderboardUpdateEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), Leaderboard.class), packet.getData().getTopic()));
 						break;
 						
 						case ONSITE_NOTIFICATIONS:
