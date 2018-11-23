@@ -53,6 +53,7 @@ public class Whisper {
 		@Getter @SerializedName("display_name") private String displayName;
 		@Getter @SerializedName("user_type") private String type;
 		
+		@SuppressWarnings("Duplicates")
 		public List<Emote> getEmotes() {
 			HashMap<Integer, Emote> map = new HashMap<>();
 			List<Emote.Position> positions = new ArrayList<>();

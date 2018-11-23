@@ -41,8 +41,8 @@ public class ChatService extends Thread {
 	@Getter private User clientUser;
 	@Getter private HashMap<String, Channel> connectedChannels = new HashMap<>();
 	
-	@Getter private List<BetterTTV.Emote> globalBTTVEmotes;
-	@Getter private List<FrankerFaceZ.Emote> globalFFZEmotes;
+	@Getter private List<BetterTTV.Emote> globalBTTVEmotes = new ArrayList<>();
+	@Getter private List<FrankerFaceZ.Emote> globalFFZEmotes = new ArrayList<>();
 	
 	@Getter private boolean connected;
 	@Getter private boolean ready;
@@ -137,15 +137,21 @@ public class ChatService extends Thread {
 	}
 	
 	public void BetterTTV() throws IOException {
-		this.globalBTTVEmotes = BetterTTV.getGlobalEmotes().getEmotes();
+		if(TMI.isUsingExtras()) {
+			this.globalBTTVEmotes = BetterTTV.getGlobalEmotes().getEmotes();
+		} else
+			this.globalBTTVEmotes = new ArrayList<>();
 	}
 	
 	public void FrankerFaceZ() throws IOException {
-		List<FrankerFaceZ.Emote> emotes = new ArrayList<>();
-		for(FrankerFaceZ.Set set : FrankerFaceZ.getDefaultSet().getSets().values())
-			for(FrankerFaceZ.Emote emote : set.getEmoticons())
-				emotes.add(emote);
-		this.globalFFZEmotes = emotes;
+		if(TMI.isUsingExtras()) {
+			List<FrankerFaceZ.Emote> emotes = new ArrayList<>();
+			for(FrankerFaceZ.Set set : FrankerFaceZ.getDefaultSet().getSets().values())
+				for(FrankerFaceZ.Emote emote : set.getEmoticons())
+					emotes.add(emote);
+			this.globalFFZEmotes = emotes;
+		} else
+			this.globalFFZEmotes = new ArrayList<>();
 	}
 	
 	@Getter

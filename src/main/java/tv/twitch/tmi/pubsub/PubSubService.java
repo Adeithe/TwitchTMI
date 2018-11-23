@@ -93,15 +93,15 @@ public class PubSubService extends Thread {
 					MessagePacket packet = Utils.GSON.fromJson(message, MessagePacket.class);
 					switch(PubSubTopic.TopicInfo.find(packet.getData().getTopic().split("\\.")[0])) {
 						case BITS:
-							// TODO: BITS
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new ChannelBitsEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), Bits.class), packet.getData().getTopic()));
 						break;
 						
 						case CHANNEL_SUBSCRIPTIONS:
-							// TODO: CHANNEL_SUBSCRIPTIONS
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new ChannelSubscriptionEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), Subscription.class), packet.getData().getTopic()));
 						break;
 						
 						case COMMERCE:
-							// TODO: COMMERCE
+							this.getPubSub().getClient().getEventDispatcher().dispatch(new ChannelCommerceEvent(this.getPubSub(), Utils.GSON.fromJson(packet.getData().getMessage(), Commerce.class), packet.getData().getTopic()));
 						break;
 						
 						case WHISPERS:
@@ -126,12 +126,8 @@ public class PubSubService extends Thread {
 							// TODO: CHATROOM_USER
 						break;
 						
-						case PUBLIC_CHANNEL_BIT_EVENTS:
-							// TODO: PUBLIC_CHANNEL_BIT_EVENTS
-						break;
-						
-						case USER_BIT_UPDATES:
-							// TODO: USER_BIT_UPDATES
+						case USER_BITS_UPDATES:
+							// TODO: USER_BITS_UPDATES
 						break;
 						
 						case USER_SUBSCRIBE_EVENTS:

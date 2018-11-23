@@ -1,18 +1,26 @@
 package tv.twitch.tmi.irc;
 
+import com.frankerfacez.FrankerFaceZ;
 import lombok.Getter;
+import lombok.Setter;
+import net.betterttv.BetterTTV;
 import tv.twitch.TwitchClient;
+import tv.twitch.tmi.handle.impl.obj.Emote;
 import tv.twitch.tmi.handle.impl.obj.irc.Channel;
 import tv.twitch.tmi.handle.impl.obj.irc.User;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 public class TwitchTMI {
 	@Getter private TwitchClient client;
 	private ChatService ChatService;
 	
 	@Getter private boolean anonymous;
+	@Getter private boolean usingExtras = true;
 	
 	public TwitchTMI(TwitchClient client) {
 		this.client = client;
@@ -96,5 +104,40 @@ public class TwitchTMI {
 	public void logout() {
 		if(this.ChatService != null && this.ChatService.isConnected())
 			this.ChatService.disconnect();
+	}
+	
+	public void setUsingExtras(boolean useExtras) {
+		try {
+			usingExtras = useExtras;
+			ChatService.BetterTTV();
+			ChatService.FrankerFaceZ();
+		} catch(IOException e) {
+			if(useExtras)
+				e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Gets a clone BetterTTV Emote List. Modifications to this are not saved.
+	 *
+	 * @return
+	 */
+	public List<BetterTTV.Emote> getGlobalBTTVEmotes() {
+		List<BetterTTV.Emote> copy = new ArrayList<>(ChatService.getGlobalBTTVEmotes().size());
+		for(BetterTTV.Emote emote : ChatService.getGlobalBTTVEmotes())
+			copy.add(emote);
+		return copy;
+	}
+	
+	/**
+	 * Gets a clone FrankerFaceZ Emote List. Modifications to this are not saved.
+	 *
+	 * @return
+	 */
+	public List<FrankerFaceZ.Emote> getGlobalFFZEmotes() {
+		List<FrankerFaceZ.Emote> copy = new ArrayList<>(ChatService.getGlobalFFZEmotes().size());
+		for(FrankerFaceZ.Emote emote : ChatService.getGlobalFFZEmotes())
+			copy.add(emote);
+		return copy;
 	}
 }

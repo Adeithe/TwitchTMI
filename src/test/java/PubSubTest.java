@@ -10,7 +10,6 @@ import tv.twitch.tmi.handle.impl.events.pubsub.status.PongEvent;
 import tv.twitch.tmi.handle.impl.obj.Emote;
 import tv.twitch.tmi.handle.impl.obj.pubsub.packet.incoming.obj.Leaderboard;
 import tv.twitch.tmi.pubsub.PubSub;
-import tv.twitch.tmi.pubsub.PubSubTopic;
 
 import java.util.*;
 
@@ -60,17 +59,39 @@ public class PubSubTest {
 		public void handle(ConnectEvent event) {
 			System.out.println("Connected!");
 			List<String> nonces = new ArrayList<>();
-				nonces.add(event.getPubSub().listen(PubSub.Topic.getWhispersTopic(128266588)));
 				nonces.add(event.getPubSub().listen(
-						PubSub.Topic.getChatroomsUserTopic(128266588),
-						PubSub.Topic.getPublicChannelBitEventsTopic(26301881),
-						PubSub.Topic.getUserBitUpdatesTopic(128266588),
-						PubSub.Topic.getUserSubscribeEventsTopic(128266588),
-						PubSub.Topic.getUserPropertiesUpdateTopic(128266588),
+						PubSub.Topic.getOnsiteNotificationsTopic(128266588),
+						PubSub.Topic.getPresenceTopic(128266588),
 						PubSub.Topic.getFollowsTopic(128266588),
+						PubSub.Topic.getStreamChangeTopic(128266588),
+						PubSub.Topic.getWhispersTopic(128266588),
+						PubSub.Topic.getUserCampaignEventsTopic(128266588),
+						PubSub.Topic.getUserSubscribeEventsTopic(128266588),
+						PubSub.Topic.getFriendshipTopic(128266588),
+						PubSub.Topic.getUserBitUpdatesTopic(128266588),
+						PubSub.Topic.getUserCommerceEventsTopic(128266588),
+						PubSub.Topic.getChatroomsUserTopic(128266588),
+						PubSub.Topic.getUserPropertiesUpdateTopic(128266588),
+						PubSub.Topic.getUserExtensionPurchaseEventsTopic(128266588)
+				));
+				nonces.add(event.getPubSub().listen(
+						PubSub.Topic.getVideoPlaybackTopic(26301881),
+						PubSub.Topic.getBroadcastSettingsUpdateTopic(26301881),
+						PubSub.Topic.getChannelEventUpdatesTopic(26301881),
+						PubSub.Topic.getStreamChatroomTopic(26301881),
+						PubSub.Topic.getExtensionControlTopic(26301881),
+						PubSub.Topic.getChannelSquadUpdatesTopic(26301881),
+						PubSub.Topic.getChannelSubscriptionGiftsTopic(26301881),
+						PubSub.Topic.getRaidsTopic(26301881),
+						PubSub.Topic.getExtensionControlTopic("uaw3vx1k0ttq74u9b2zfvt768eebh1"),
+						PubSub.Topic.getChatroomsChannelTopic(26301881),
+						PubSub.Topic.getChannelBitEventsTopic(26301881),
 						PubSub.Topic.getChannelModerationActionsTopic(128266588, 26301881),
+						PubSub.Topic.getBitsExtensionTransactionTopic(26301881, "uaw3vx1k0ttq74u9b2zfvt768eebh1"),
+						PubSub.Topic.getBitsExtensionUserTransactionTopic(128266588, 26301881, "uaw3vx1k0ttq74u9b2zfvt768eebh1"),
 						PubSub.Topic.getLeaderboardEventsTopic(26301881, Leaderboard.TimeRange.WEEKLY)
 				));
+				nonces.add(event.getPubSub().listen(PubSub.Topic.getBitsCampaignTopic()));
 			System.out.println("Sent packet with nonce codes: ");
 			for(String nonce : nonces)
 				System.out.println("	- "+ nonce);

@@ -5,6 +5,7 @@ import tv.twitch.tmi.handle.impl.obj.Emote;
 import tv.twitch.tmi.irc.TwitchTMI;
 import tv.twitch.utils.Parser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,7 +17,7 @@ public class Message {
 	private Channel channel;
 	
 	private String messageID;
-	private List<Emote> emotes;
+	private List<Emote> emotes = new ArrayList<>();
 	private User sender;
 	private String text;
 	private Type type;
