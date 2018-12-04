@@ -12,8 +12,8 @@ import java.util.List;
 public class IRCTest {
 	public static void main(String[] args) throws Exception {
 		TwitchClient.Builder Builder = new TwitchClient.Builder();
-				Builder.withUsername(System.getenv("TWITCH_USERNAME2"));
-				Builder.withOAuth(System.getenv("TWITCH_OAUTH2"));
+				Builder.withUsername(System.getenv("TWITCH_USERNAME"));
+				Builder.withOAuth(System.getenv("TWITCH_OAUTH"));
 				Builder.setVerbose(ClientSettings.VerboseLevel.INCOMING);
 		
 		TwitchClient Client = Builder.build();
