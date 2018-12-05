@@ -45,6 +45,10 @@ public class IRCTest {
 				System.out.println("	Emotes:");
 				for(int i = 0; i < emotes.size(); i++) {
 					System.out.println("		- " + emotes.get(i).getCode(event.getMessage()));
+					System.out.println("			URLS:");
+					System.out.println("				SMALL: "+ emotes.get(i).getURL(Emote.Size.SMALL));
+					System.out.println("				Medium: "+ emotes.get(i).getURL(Emote.Size.MEDIUM));
+					System.out.println("				LARGE: "+ emotes.get(i).getURL(Emote.Size.LARGE));
 				}
 			}
 		}

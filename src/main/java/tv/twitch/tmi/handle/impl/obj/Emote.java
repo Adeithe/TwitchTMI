@@ -3,21 +3,31 @@ package tv.twitch.tmi.handle.impl.obj;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-@Getter
 public class Emote {
-	private int emoteID;
-	private List<Position> positions;
-	private Type type;
+	@Getter private int emoteID;
+	@Getter private List<Position> positions;
+	@Getter private Type type;
+	
+	private String _emoteID;
+	private HashMap<Integer, String> urls;
 	
 	/**
 	 * @param size
 	 * @return The emotes image URL.
 	 */
-	public String getURL(Size size) { return this.getType().getURL().replaceFirst(Pattern.quote("{{ID}}"), this.getEmoteID()+"").replaceFirst(Pattern.quote("{{SIZE}}"), size.toString(this.getType())); }
+	public String getURL(Size size) {
+		if(getType().equals(Type.FFZ))
+			return this.urls.getOrDefault(Integer.parseInt(size.toString(getType())), "");
+		String id = this.getEmoteID()+"";
+		if(getType().equals(Type.BTTV))
+			id = this._emoteID;
+		return this.getType().getURL().replaceFirst(Pattern.quote("{{ID}}"), id).replaceFirst(Pattern.quote("{{SIZE}}"), size.toString(this.getType()));
+	}
 	
 	public String getCode(tv.twitch.tmi.handle.impl.obj.irc.Message message) {
 		Position pos = positions.get(0);
@@ -29,11 +39,27 @@ public class Emote {
 		return whisper.getBody().substring(pos.start, pos.stop);
 	}
 	
+	public Emote(String id, Position[] positions, Type type) {
+		this.emoteID = -1;
+		this._emoteID = id;
+		this.positions = new ArrayList<>();
+		this.type = type;
+		
+		for(Position pos : positions)
+			this.positions.add(pos);
+	}
+	
 	public Emote(int id, Position[] positions) { this(id, positions, Type.TWITCH); }
-	public Emote(int id, Position[] positions, Type type) {
+	public Emote(int id, Position[] positions, Type type) { this(id, positions, type, null); }
+	public Emote(int id, Position[] positions, Type type, HashMap<Integer, String> urls) {
 		this.emoteID = id;
 		this.positions = new ArrayList<>();
 		this.type = type;
+		
+		if(urls != null) {
+			this._emoteID = ""+id;
+			this.urls = urls;
+		}
 		
 		for(Position pos : positions)
 			this.positions.add(pos);
@@ -65,7 +91,7 @@ public class Emote {
 	public enum Type {
 		TWITCH("Twitch", "https://static-cdn.jtvnw.net/emoticons/v1/{{ID}}/{{SIZE}}"),
 		BTTV("BetterTTV", "https://cdn.betterttv.net/emote/{{ID}}/{{SIZE}}"),
-		FFZ("FrankerFaceZ", "https://cdn.frankerfacez.com/{{ID}}.PNG"); //FFZ urls may be invalid as emotes could end with .png or .PNG
+		FFZ("FrankerFaceZ", null);
 		
 		String name;
 		String url;
@@ -82,9 +108,9 @@ public class Emote {
 	}
 	
 	public enum Size {
-		SMALL("1.0", "1x", ""),
-		MEDIUM("2.0", "2x", ""),
-		LARGE("3.0", "3x", "");
+		SMALL("1.0", "1x", "1"),
+		MEDIUM("2.0", "2x", "2"),
+		LARGE("3.0", "3x", "4");
 		
 		String twitch, bttv, ffz;
 		Size(String twitch, String bttv, String ffz) {

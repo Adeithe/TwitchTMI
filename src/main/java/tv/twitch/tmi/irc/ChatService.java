@@ -137,13 +137,16 @@ public class ChatService extends Thread {
 	}
 	
 	public void BetterTTV() throws IOException {
+		this.globalBTTVEmotes = new ArrayList<>();
 		if(TMI.isUsingExtras()) {
 			this.globalBTTVEmotes = BetterTTV.getGlobalEmotes().getEmotes();
 		} else
-			this.globalBTTVEmotes = new ArrayList<>();
+			for(Channel channel : this.getConnectedChannels().values())
+				channel.BetterTTV();
 	}
 	
 	public void FrankerFaceZ() throws IOException {
+		this.globalFFZEmotes = new ArrayList<>();
 		if(TMI.isUsingExtras()) {
 			List<FrankerFaceZ.Emote> emotes = new ArrayList<>();
 			for(FrankerFaceZ.Set set : FrankerFaceZ.getDefaultSet().getSets().values())
@@ -151,7 +154,8 @@ public class ChatService extends Thread {
 					emotes.add(emote);
 			this.globalFFZEmotes = emotes;
 		} else
-			this.globalFFZEmotes = new ArrayList<>();
+			for(Channel channel : this.getConnectedChannels().values())
+				channel.FrankerFaceZ();
 	}
 	
 	@Getter

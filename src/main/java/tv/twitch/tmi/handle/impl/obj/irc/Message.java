@@ -1,6 +1,8 @@
 package tv.twitch.tmi.handle.impl.obj.irc;
 
+import com.frankerfacez.FrankerFaceZ;
 import lombok.Getter;
+import net.betterttv.BetterTTV;
 import tv.twitch.tmi.handle.impl.obj.Emote;
 import tv.twitch.tmi.irc.TwitchTMI;
 import tv.twitch.utils.Parser;
@@ -40,7 +42,28 @@ public class Message {
 			if(!tags.getOrDefault("id", "").isEmpty())
 				this.messageID = tags.get("id");
 			
-			this.emotes = Parser.emotes(tags.getOrDefault("emotes", ""), this.getText());
+			if(tags.containsKey("emotes"))
+				this.emotes = Parser.emotes(tags.get("emotes"), this.getText());
+			
+			for(BetterTTV.Emote emote : TMI.getGlobalBTTVEmotes()) {
+				Matcher matcher = getEmoteMatcher(emote.getCode());
+				if(matcher.find()) addEmote(emote, Emote.Type.BTTV);
+			}
+			for(FrankerFaceZ.Emote emote : TMI.getGlobalFFZEmotes()) {
+				Matcher matcher = getEmoteMatcher(emote.getName());
+				if(matcher.find()) addEmote(emote, Emote.Type.FFZ);
+			}
+			
+			if(!getChannel().isBackendChannel()) {
+				for(BetterTTV.Emote emote : getChannel().getBTTVEmotes()) {
+					Matcher matcher = getEmoteMatcher(emote.getCode());
+					if(matcher.find()) addEmote(emote, Emote.Type.BTTV);
+				}
+				for(FrankerFaceZ.Emote emote : getChannel().getFFZEmotes()) {
+					Matcher matcher = getEmoteMatcher(emote.getName());
+					if(matcher.find()) addEmote(emote, Emote.Type.FFZ);
+				}
+			}
 		}
 	}
 	
@@ -49,6 +72,45 @@ public class Message {
 	 */
 	public void delete() {
 		this.getChannel().sendMessage("/delete "+ this.getMessageID(), true);
+	}
+	
+	private void addEmote(Object obj, Emote.Type type) {
+		int pos = 0;
+		List<Emote.Position> positions = new ArrayList<>();
+		switch(type) {
+			case BTTV:
+				{
+					BetterTTV.Emote emote = (BetterTTV.Emote) obj;
+					for(String block : getText().split("(?<!\\w)("+ Pattern.quote(emote.getCode()) +")(?!\\w)")) {
+						pos += block.length();
+						positions.add(new Emote.Position(pos, pos + emote.getCode().length()));
+						pos += emote.getCode().length();
+					}
+					if(positions.size() < 1) positions.add(new Emote.Position(0, emote.getCode().length()));
+					this.getEmotes().add(new Emote(emote.getId(), positions.toArray(new Emote.Position[positions.size()]), type));
+				}
+			break;
+			
+			case FFZ:
+				{
+					FrankerFaceZ.Emote emote = (FrankerFaceZ.Emote) obj;
+					for(String block : getText().split("(?<!\\w)("+ Pattern.quote(emote.getName()) +")(?!\\w)")) {
+						pos += block.length();
+						positions.add(new Emote.Position(pos, pos + emote.getName().length()));
+						pos += emote.getName().length();
+					}
+					if(positions.size() < 1) positions.add(new Emote.Position(0, emote.getName().length()));
+					this.getEmotes().add(new Emote(emote.getId(), positions.toArray(new Emote.Position[positions.size()]), type, emote.getUrls()));
+				}
+			break;
+			
+			default:
+				break;
+		}
+	}
+	
+	private Matcher getEmoteMatcher(String code) {
+		return Pattern.compile("(^|\\s)("+ Pattern.quote(code) +")($|\\s)").matcher(this.getText());
 	}
 	
 	public enum Type {

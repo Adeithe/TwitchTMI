@@ -62,15 +62,20 @@ public class Channel {
 	}
 	
 	public void BetterTTV() throws IOException {
-		this.BTTVEmotes = BetterTTV.getChannelEmotes(this.name).getEmotes();
+		this.BTTVEmotes = new ArrayList<>();
+		if(isConnected() && getTMI().isUsingExtras())
+			this.BTTVEmotes = BetterTTV.getChannelEmotes(this.name).getEmotes();
 	}
 	
 	public void FrankerFaceZ() throws IOException {
-		List<FrankerFaceZ.Emote> emotes = new ArrayList<>();
-		for(FrankerFaceZ.Set set : FrankerFaceZ.getRoom(this.name, true).getSets().values())
-			for(FrankerFaceZ.Emote emote : set.getEmoticons())
-				emotes.add(emote);
-		this.FFZEmotes = emotes;
+		this.FFZEmotes = new ArrayList<>();
+		if(isConnected() && getTMI().isUsingExtras()) {
+			List<FrankerFaceZ.Emote> emotes = new ArrayList<>();
+			for(FrankerFaceZ.Set set : FrankerFaceZ.getRoom(this.name, true).getSets().values())
+				for(FrankerFaceZ.Emote emote : set.getEmoticons())
+					emotes.add(emote);
+			this.FFZEmotes = emotes;
+		}
 	}
 	
 	/**
@@ -124,4 +129,11 @@ public class Channel {
 			return;
 		this.getTMI().sendRawData("PART #"+ this.getName());
 	}
+	
+	/**
+	 * Returns true if the channel is the backend channel.
+	 *
+	 * @return
+	 */
+	public boolean isBackendChannel() { return getName().toLowerCase().equals("jtv"); }
 }
