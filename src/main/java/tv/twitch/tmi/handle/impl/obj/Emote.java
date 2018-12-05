@@ -14,15 +14,12 @@ public class Emote {
 	@Getter private Type type;
 	
 	private String _emoteID;
-	private HashMap<Integer, String> urls;
 	
 	/**
 	 * @param size
 	 * @return The emotes image URL.
 	 */
 	public String getURL(Size size) {
-		if(getType().equals(Type.FFZ))
-			return this.urls.getOrDefault(Integer.parseInt(size.toString(getType())), "");
 		String id = this.getEmoteID()+"";
 		if(getType().equals(Type.BTTV))
 			id = this._emoteID;
@@ -56,10 +53,8 @@ public class Emote {
 		this.positions = new ArrayList<>();
 		this.type = type;
 		
-		if(urls != null) {
-			this._emoteID = ""+id;
-			this.urls = urls;
-		}
+		if(urls != null)
+			this._emoteID = id+"";
 		
 		for(Position pos : positions)
 			this.positions.add(pos);
@@ -91,7 +86,7 @@ public class Emote {
 	public enum Type {
 		TWITCH("Twitch", "https://static-cdn.jtvnw.net/emoticons/v1/{{ID}}/{{SIZE}}"),
 		BTTV("BetterTTV", "https://cdn.betterttv.net/emote/{{ID}}/{{SIZE}}"),
-		FFZ("FrankerFaceZ", null);
+		FFZ("FrankerFaceZ", "https://cdn.frankerfacez.com/emoticon/{{ID}}/{{SIZE}}");
 		
 		String name;
 		String url;
