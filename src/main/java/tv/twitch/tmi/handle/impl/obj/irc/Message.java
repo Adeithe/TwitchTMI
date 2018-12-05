@@ -48,7 +48,7 @@ public class Message {
 	 * Deletes the message from chat.
 	 */
 	public void delete() {
-		this.getChannel().sendMessage("/delete "+ this.getSender().getUsername() + " "+ this.getText() +" "+ this.getMessageID(), true);
+		this.getChannel().sendMessage("/delete "+ this.getMessageID(), true);
 	}
 	
 	public enum Type {
