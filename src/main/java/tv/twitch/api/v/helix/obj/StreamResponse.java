@@ -20,8 +20,10 @@ public class StreamResponse extends ResponseData {
 		private String type;
 		@SerializedName("thumbnail_url") private String unmodifiedThumbnailUrl;
 		@SerializedName("user_id") private String userId;
+		@SerializedName("user_name") private String userName;
 		@SerializedName("game_id") private String gameId;
 		@SerializedName("community_ids") private List<String> communityIds;
+		@SerializedName("tag_ids") private List<String> tagIds;
 		@SerializedName("viewer_count") private int viewerCount;
 		@SerializedName("started_at") private String startedAt;
 		
