@@ -1,4 +1,4 @@
-# TwitchTMI [![](https://status.adeithe.dev/jenkins?job=TwitchTMI&style=flat-square)](https://ci.adeithe.dev/job/TwitchTMI)
+# TwitchTMI [![](https://api.adeithe.dev/jenkins/badge?job=TwitchTMI&style=flat-square)](https://ci.adeithe.dev/job/TwitchTMI)
 
 SSL Implementation of the Twitch IRC and API Services in Java
 
