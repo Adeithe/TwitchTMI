@@ -1,4 +1,4 @@
-# TwitchTMI [![](https://jitpack.io/v/Adeithe/TwitchTMI.svg?style=flat-square)](https://jitpack.io/#Adeithe/TwitchTMI)
+# TwitchTMI [![](https://status.adeithe.dev/jenkins?job=TwitchTMI&style=flat-square)](https://ci.adeithe.dev/job/TwitchTMI)
 
 SSL Implementation of the Twitch IRC and API Services in Java
 
@@ -11,7 +11,7 @@ All examples of how to get started with TwitchTMI are available at [/src/test/ja
 Documentation for TwitchTMI is available [HERE](https://jitpack.io/com/github/Adeithe/TwitchTMI/master-SNAPSHOT/javadoc)
 
 ## Using TwitchTMI in your project
-`@VERSION@` = The release version of TwitchTMI to use or `-SNAPSHOT` to use the dev version
+`@VERSION@` = The release version of TwitchTMI to use or check `pom.xml` for the dev version
 ##### With Maven
 Add the following to your `pom.xml` (Without ellipses)
 ```xml
@@ -19,8 +19,8 @@ Add the following to your `pom.xml` (Without ellipses)
 <repositories>
     ...
     <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
+        <id>Adeithe</id>
+        <url>https://repo.adeithe.dev/maven/</url>
     </repository>
 </repositories>
 ...
@@ -41,7 +41,7 @@ allprojects {
     ...
     repositories {
         ...
-        maven { url  "https://jitpack.io" }
+        maven { url  "https://repo.adeithe.dev/maven/" }
     }
 }
 ...
