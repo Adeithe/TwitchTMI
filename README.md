@@ -13,43 +13,37 @@ Documentation for TwitchTMI is available [HERE](https://jitpack.io/com/github/Ad
 ## Using TwitchTMI in your project
 `@VERSION@` = The release version of TwitchTMI to use or check `pom.xml` for the dev version
 ##### With Maven
-Add the following to your `pom.xml` (Without ellipses)
+Add the following to your `pom.xml`
 ```xml
-...
-<repositories>
-    ...
-    <repository>
-        <id>Adeithe</id>
-        <url>https://repo.adeithe.dev/maven/</url>
-    </repository>
-</repositories>
-...
-<dependencies>
-    ...
-    <dependency>
-        <groupId>com.github.Adeithe</groupId>
-        <artifactId>TwitchTMI</artifactId>
-        <version>@VERSION@</version>
-    </dependency>
-</dependencies>
-...
+<project>
+    <repositories>
+        <repository>
+            <id>Adeithe</id>
+            <url>https://repo.adeithe.dev/maven/</url>
+        </repository>
+    </repositories>
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.github.Adeithe</groupId>
+            <artifactId>TwitchTMI</artifactId>
+            <version>@VERSION@</version>
+        </dependency>
+    </dependencies>
+</project>
 ```
 ##### With Gradle
-Add the following to your `build.gradle` (Without ellipses)
+Add the following to your `build.gradle`
 ```groovy
 allprojects {
-    ...
     repositories {
-        ...
         maven { url  "https://repo.adeithe.dev/maven/" }
     }
 }
-...
+
 dependencies {
-  ...
   compile "com.github.Adeithe:TwitchTMI:@VERSION@"
 }
-...
 ```
 
 ## Development
